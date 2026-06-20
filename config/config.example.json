@@ -1,0 +1,44 @@
+{
+  "_comment": "FortiGate MCP Server — 设备连接与服务器运行配置（示例，请复制为 config.json 后修改）",
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8814,
+    "name": "fortigate-mcp-server",
+    "version": "2.0.0"
+  },
+  "fortigate": {
+    "devices": {
+      "FW-01": {
+        "host": "192.168.1.1",
+        "port": 443,
+        "username": "admin",
+        "password": "your-password-here",
+        "api_token": "your-api-token-here",
+        "vdom": "root",
+        "verify_ssl": false,
+        "timeout": 30
+      },
+      "FW-02": {
+        "host": "192.168.1.2",
+        "port": 443,
+        "api_token": "your-api-token-here",
+        "vdom": "root",
+        "verify_ssl": false,
+        "timeout": 30
+      }
+    }
+  },
+  "auth": {
+    "require_auth": true,
+    "api_tokens": [
+      {"name": "client-1", "token": "replace-with-strong-token"}
+    ],
+    "allowed_origins": []
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "/app/logs/fortigate_mcp.log",
+    "console": true
+  }
+}

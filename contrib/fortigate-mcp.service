@@ -1,0 +1,23 @@
+# FortiGate MCP Server — systemd 用户服务模板
+# 安装: cp contrib/fortigate-mcp.service ~/.config/systemd/user/
+# 启用: systemctl --user enable --now fortigate-mcp
+[Unit]
+Description=FortiGate MCP Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/path/to/fortigate-mcp-server
+Environment=FORTIGATE_MCP_CONFIG=/path/to/fortigate-mcp-server/config/config.json
+ExecStart=python -m src.fortigate_mcp.server_http --host 0.0.0.0 --port 8814 --transport all
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/path/to/fortigate-mcp-server/logs/server.log
+StandardError=append:/path/to/fortigate-mcp-server/logs/server.log
+
+# 启用 HTTPS: 加上 --ssl-cert certs/server.crt --ssl-key certs/server.key
+# 默认 HTTP:   不加 SSL 参数即可
+
+[Install]
+WantedBy=default.target
