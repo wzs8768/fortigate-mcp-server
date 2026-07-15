@@ -138,7 +138,8 @@ uv pip install -e .
 {
   "server": {
     "host": "0.0.0.0",
-    "port": 8814,
+    "https_port": 8814,
+    "http_port": 8815,
     "name": "fortigate-mcp-server",
     "version": "2.0.0"
   },
