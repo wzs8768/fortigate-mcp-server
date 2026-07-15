@@ -2438,7 +2438,7 @@ Returns: Update confirmation.""")
                 "name": self.config.server.name,
                 "version": self.config.server.version,
                 "host": self.config.server.host,
-                "port": self.config.server.port,
+                "port": self.config.server.https_port,
                 "registered_devices": len(self.fortigate_manager.devices),
                 "available_tools": "278 MCP tools across 9 categories: Device, Firewall, Network, Routing, Schedules, Resources, Security, System, Monitor (47 tools)",
             }

@@ -2778,7 +2778,7 @@ Examples:
                 "name": self.config.server.name,
                 "version": self.config.server.version,
                 "host": self.config.server.host,
-                "port": self.config.server.port,
+                "port": self.config.server.https_port,
                 "registered_devices": len(self.fortigate_manager.devices),
                 "available_tools": f"{tool_count} tools",
                 "device_ids": list(self.fortigate_manager.devices.keys()),

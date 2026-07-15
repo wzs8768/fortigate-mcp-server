@@ -84,7 +84,8 @@ class ServerConfig(BaseModel):
     network binding and performance settings.
     """
     host: str = Field(default="0.0.0.0", description="Server bind address")
-    port: int = Field(default=8814, description="Server port")
+    https_port: int = Field(default=8814, description="HTTPS server port")
+    http_port: Optional[int] = Field(default=8815, description="HTTP server port (when running alongside HTTPS)")
     name: str = Field(default="fortigate-mcp-server", description="Server name")
     version: str = Field(default="1.0.0", description="Server version")
 
