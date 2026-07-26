@@ -191,7 +191,6 @@ uv pip install -e .
 |------|------|
 | `fortigate.devices` | 管理的 FortiGate 设备列表，每台设备一个命名字段 |
 | `fortigate.devices.<name>.api_token` | FortiGate 设备本身的 API Token（在 FortiGate 上生成）。**优先于 username/password**，两者同时配置时以 api_token 为准 |
-| `fortigate.devices.<name>.os_version` | (可选) FortiOS 版本号，如 `"7.6.7"`。不填则首次连接时自动检测并缓存 |
 | `fortigate.devices.<name>.username` / `password` | 用户名密码认证（备选，推荐用 api_token） |
 | `auth.api_tokens` | **MCP Server 认证 Token 列表**，客户端连接时携带，服务端验证 |
 | `auth.api_tokens[].name` | Token 名称/标签，用于识别使用者（如 `hermes-local`、`张三-claude`） |
@@ -377,54 +376,7 @@ winget install OpenJS.NodeJS.LTS
 
 > 在已有的 `claude_desktop_config.json` 文件中，将 `mcpServers` 块合并进去即可，其余配置项保持不变。
 
-> `NODE_TLS_REJECT_UNAUTHORIZED=0` 跳过 TLS 证书验证，适用于自签名证书环境。生产环境建议将证书导入系统受信任根。
-
-#### 远程访问安全加固
-
-`auth` 配置已在 [配置](#配置) 节完整给出（`config/config.json` → `auth.api_tokens`），此处补充操作说明：
-
-**1. 生成 Token：**
-```bash
-python3 -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-**2. 写入 `config/config.json` 的 `auth.api_tokens` 数组**（见上方完整配置示例）。
-
-**3. 多客户端 Token 命名示例：**
-```json
-"auth": {
-  "require_auth": true,
-  "api_tokens": [
-    {"name": "hermes-local", "token": "<token-1>"},
-    {"name": "claude-win",    "token": "<token-2>"},
-    {"name": "cursor-laptop", "token": "<token-3>"}
-  ]
-}
-```
-
-> 也兼容旧格式（裸字符串）：`"api_tokens": ["token1", "token2"]`，自动标记为 `(unnamed)`。
-
-**4. 重启服务生效：** `systemctl --user restart fortigate-mcp`
-
-**5. Claude Desktop 客户端配置 — 见上方 [Windows Claude Desktop](#windows-claude-desktop自签名证书--tls-跳过验证) 节的完整 `claude_desktop_config.json` 示例。**
-```
-
-> `--header "Authorization:${FORTIGATE_AUTH}"` 中 `:` 和 `Bearer` 之间无空格，避免 Windows 版 Claude Desktop 的参数空格 bug。
-
-Hermes Agent 配置（YAML 格式，`~/.hermes/config.yaml`）：
-
-```yaml
-mcp_servers:
-  fortigate:
-    url: https://<服务器IP>:8814/fortigate-mcp
-    enabled: true
-    ssl_verify: false
-    connect_timeout: 30
-    headers:
-      Authorization: "Bearer <your-shared-token>"
-```
-
-> Hermes 的 HTTP 配置（无需证书）：将 `url` 改为 `http://<服务器IP>:8815/fortigate-mcp`，删除 `ssl_verify` 行。
+> `NODE_TLS_REJECT_UNAUTHORIZED=0` 跳过 TLS 证书验证。Token 用 `python3 -c "import secrets; print(secrets.token_urlsafe(32))"` 生成。
 
 Codex CLI 配置（TOML 格式，`~/.codex/config.toml` 或项目 `.codex.toml`）：
 
