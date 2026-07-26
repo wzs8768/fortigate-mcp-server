@@ -6,6 +6,10 @@
 <h1 align="center">FortiGate MCP Server</h1>
 
 <p align="center">
+  <strong>🇨🇳 中文</strong> &nbsp;|&nbsp; <a href="README_EN.md">🇺🇸 English</a>
+</p>
+
+<p align="center">
   <strong>基于 Model Context Protocol (MCP) 的 FortiGate 防火墙管理服务器</strong>
 </p>
 
