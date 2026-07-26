@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 7.6/8.0 REST API 管理服务器 — 279 MCP 工具 · 540+ API 方法 · 1023+ CMDB 端点 -->
+<!-- FortiGate MCP Server — FortiOS 7.6.7 / 8.0.0 REST API 管理服务器 — 279 MCP 工具 · 540+ API 方法 · 1023+ CMDB 端点 -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -26,7 +26,7 @@ FortiGate MCP Server 通过 [Model Context Protocol](https://modelcontextprotoco
 
 基于 **全异步 Python** 构建，支持持久化 HTTP 连接池，安全优先默认配置。
 
-**已覆盖 FortiOS 7.6.7 / 8.0 全部四大类 API：**
+**已覆盖 FortiOS 7.6.7 / 8.0.0 全部四大类 API：**
 
 | API 类 | 路径 | 方法数 |
 |--------|------|--------|
@@ -179,7 +179,7 @@ uv pip install -e .
 }
 ```
 
-> 基于 FortiOS 7.6.7 / 8.0 适配开发，支持版本自动检测。其他版本 API 可能存在差异，使用前请自行验证。
+> 基于 FortiOS 7.6.7 / 8.0.0 适配开发，支持版本自动检测。其他版本 API 可能存在差异，使用前请自行验证。
 
 ### 配置字段说明
 
@@ -676,7 +676,7 @@ fortigate-mcp-server/
 - VDOM 名称大小写敏感
 
 **策略创建 500 错误**
-- FortiOS 8.0 必需 `"schedule": "always"` 字段
+- FortiOS 8.0.0 必需 `"schedule": "always"` 字段
 - 地址/服务对象含 `/` 需 URL 编码（已内置处理）
 
 ---

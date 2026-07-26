@@ -2492,9 +2492,9 @@ Returns: Update confirmation.""")
             return await self.security_tools.update_log_syslogd_setting(device_id, data, vdom)
 
         # ============================================================
-        # Generic CMDB tools (covers ALL 1023+ FortiOS 8.0 endpoints)
+        # Generic CMDB tools (covers ALL 1023+ FortiOS 8.0.0 endpoints)
         # ============================================================
-        @self.mcp.tool(description="""List resources at any CMDB path (covers ALL FortiOS 8.0 endpoints).
+        @self.mcp.tool(description="""List resources at any CMDB path (covers ALL FortiOS 8.0.0 endpoints).
 
 IMPORTANT — Path format:
   - Top-level tables: use "/" (e.g. "firewall/address", "firewall/policy")

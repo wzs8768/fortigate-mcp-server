@@ -280,7 +280,7 @@ class FortiGateAPI:
         """Generic CMDB request for any FortiOS configuration endpoint.
 
         This is the universal entry point for ALL CMDB operations, covering
-        every endpoint in the FortiOS 8.0 Configuration API (1023+ endpoints).
+        every endpoint in the FortiOS 8.0.0 Configuration API (1023+ endpoints).
 
         Args:
             method: HTTP method (GET, POST, PUT, DELETE)

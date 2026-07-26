@@ -1,4 +1,4 @@
-"""Generic CMDB tools for FortiGate MCP — covers ALL FortiOS 8.0 CMDB endpoints."""
+"""Generic CMDB tools for FortiGate MCP — covers ALL FortiOS 8.0.0 CMDB endpoints."""
 
 from typing import Any
 
