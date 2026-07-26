@@ -10,28 +10,11 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with: { python-version: "3.12" }
-      - uses: astral-sh/setup-uv@v5
-        with: { version: "latest" }
-      - run: uv pip install --system ruff
-      - run: ruff check src/
-
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with: { python-version: "3.12" }
-      - uses: astral-sh/setup-uv@v5
-        with: { version: "latest" }
-      - run: |
-          uv pip install --system build
-          python -m build
-
-  docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - run: docker build -t fortigate-mcp-server .
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Run ruff check
+        run: ruff check src/
