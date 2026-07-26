@@ -2066,7 +2066,7 @@ Returns: Update confirmation.""")
         # ============================================================
         # Generic CMDB tools (covers ALL 1023+ FortiOS 8.0.0 endpoints)
         # ============================================================
-        @self.mcp.tool(description="List resources at any CMDB path (covers ALL FortiOS 8.0.0 endpoints)")
+        @self.mcp.tool(description="""List resources at any CMDB path (covers ALL FortiOS 8.0.0 endpoints). SUB-TABLES use "." NOT "/" (e.g. firewall.addrgrp, firewall.service/custom, router/static)""")
         async def cmdb_list(
             device_id: Annotated[str, Field(description="FortiGate device identifier")],
             path: Annotated[str, Field(description="CMDB path, e.g. firewall/address, router/bgp, system/dns")],
@@ -2102,7 +2102,7 @@ Returns: Update confirmation.""")
         ):
             return await self.cmdb_tools.cmdb_update(device_id, path, data, name, vdom)
 
-        @self.mcp.tool(description="Delete a resource by name from any CMDB path")
+        @self.mcp.tool(description="""Delete a resource by name from any CMDB path. Paths use "/" separator (e.g. firewall/addrgrp, firewall/address, router/static)""")
         async def cmdb_delete(
             device_id: Annotated[str, Field(description="FortiGate device identifier")],
             path: Annotated[str, Field(description="CMDB path, e.g. firewall/address")],

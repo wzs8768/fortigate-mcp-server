@@ -2543,7 +2543,7 @@ Examples:
         ):
             return await self.cmdb_tools.cmdb_update(device_id, path, data, name, vdom)
 
-        @self.mcp.tool(description="Delete a resource by name from any CMDB path")
+        @self.mcp.tool(description="""Delete a resource by name from any CMDB path. Paths use "/" separator (e.g. firewall/addrgrp, firewall/address, router/static)""")
         async def cmdb_delete(
             device_id: str,
             path: str,

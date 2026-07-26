@@ -571,6 +571,8 @@ OpenClaw (use `rejectUnauthorized` field; `mcp.servers` block at end of `opencla
 ### Generic CMDB Tools (4)
 `cmdb_list` `cmdb_get` `cmdb_create` `cmdb_update` `cmdb_delete` — Covers ALL 1023+ FortiOS CMDB endpoints
 
+> Path format: `cmdb_list` sub-tables use `.` (e.g. `firewall.addrgrp`, `firewall.service/custom`); `cmdb_get/create/update/delete` use `/` (e.g. `firewall/addrgrp`, `firewall/address`)
+
 ### Firewall Monitoring (6)
 `monitor_firewall_policy` `monitor_firewall_policy_lookup` `monitor_firewall_sessions` `monitor_firewall_acl` `monitor_firewall_acl6`
 `monitor_ips_session_performance` `monitor_ips_rate_based`
