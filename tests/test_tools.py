@@ -164,7 +164,7 @@ class TestFirewallTools:
     async def test_update_policy(self, mock_fortigate_api):
         """Test updating a firewall policy."""
         self.fortigate_manager.devices["test_device"] = mock_fortigate_api
-        update_data = {"action": "deny"}
+        update_data = {"action": "deny", "schedule": "always"}
 
         result = await self.firewall_tools.update_policy("test_device", "5", update_data)
 

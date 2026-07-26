@@ -2,8 +2,6 @@
 Configuration model tests - validates security defaults and validation.
 """
 
-import pytest
-from pydantic import ValidationError
 
 from src.fortigate_mcp.config.models import (
     FortiGateDeviceConfig,
@@ -12,7 +10,6 @@ from src.fortigate_mcp.config.models import (
     LoggingConfig,
     ServerConfig,
     RateLimitConfig,
-    Config,
     DeviceCommandParams,
     PolicyParams,
     AddressObjectParams,
@@ -93,7 +90,7 @@ class TestServerConfig:
         """Test default server config."""
         config = ServerConfig()
         assert config.host == "0.0.0.0"
-        assert config.port == 8814
+        assert config.https_port == 8814
         assert config.name == "fortigate-mcp-server"
         assert config.version == "1.0.0"
 

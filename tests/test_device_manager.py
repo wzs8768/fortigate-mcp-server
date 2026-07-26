@@ -3,10 +3,10 @@ FortiGate Manager tests - device lifecycle and async operations.
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import MagicMock, AsyncMock
 
-from src.fortigate_mcp.core.fortigate import FortiGateManager, FortiGateAPI, FortiGateAPIError
-from src.fortigate_mcp.config.models import FortiGateDeviceConfig, AuthConfig
+from src.fortigate_mcp.core.fortigate import FortiGateManager, FortiGateAPI
+from src.fortigate_mcp.config.models import FortiGateDeviceConfig
 
 
 class TestFortiGateManager:
@@ -95,8 +95,9 @@ class TestFortiGateManager:
         result = self.manager.list_devices()
 
         assert len(result) == 2
-        assert "device1" in result
-        assert "device2" in result
+        device_ids = [d["device_id"] for d in result]
+        assert "device1" in device_ids
+        assert "device2" in device_ids
 
     def test_get_device_success(self):
         """Test getting a registered device."""

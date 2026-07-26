@@ -5,7 +5,7 @@ Pytest configuration and fixtures for FortiGate MCP server tests.
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from src.fortigate_mcp.core.fortigate import FortiGateManager, FortiGateAPI
+from src.fortigate_mcp.core.fortigate import FortiGateManager
 from src.fortigate_mcp.config.models import FortiGateDeviceConfig, AuthConfig
 
 
@@ -40,15 +40,17 @@ def device_config():
 @pytest.fixture
 def mock_fortigate_api():
     """Mock FortiGate API fixture with AsyncMock methods."""
-    mock_api = MagicMock(spec=FortiGateAPI)
+    mock_api = MagicMock()  # No spec — allows arbitrary attrs
     mock_api.device_id = "test_device"
 
     # Mock config attribute
     mock_config = MagicMock()
     mock_config.host = "192.168.1.1"
     mock_config.vdom = "root"
+    mock_config.os_version = "v7.0.0"
     mock_api.config = mock_config
     mock_api.auth_method = "basic"
+    mock_api.version = "v7.0.0"
 
     # All API methods are now async - use AsyncMock
     mock_api.test_connection = AsyncMock(return_value=True)
