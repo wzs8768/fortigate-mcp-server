@@ -66,7 +66,7 @@ class TestAuthConfig:
     def test_default_auth_config(self):
         """Test default auth config has secure defaults."""
         config = AuthConfig()
-        assert config.require_auth is False
+        assert config.require_auth is True  # Secure by default
         assert config.api_tokens == []
 
     def test_cors_default_empty(self):
