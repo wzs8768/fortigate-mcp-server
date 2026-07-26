@@ -159,15 +159,40 @@ class FortiGateTool:
         error_msg = str(error)
         self.logger.error(f"Failed to {operation} on device {device_id}: {error_msg}")
 
-        # Categorize common error types
+        # Classify error for version/capability awareness
+        cap_status = "error"
+        cap_reason = None
+        cap_detail = None
+
         if isinstance(error, FortiGateAPIError):
-            if error.status_code == 401:
+            status_code = error.status_code
+            if status_code == 401:
                 error_msg = "Authentication failed. Check device credentials."
-            elif error.status_code == 403:
+            elif status_code == 403:
                 error_msg = "Permission denied. Insufficient privileges for this operation."
-            elif error.status_code == 404:
-                error_msg = "Resource not found. The specified item may not exist."
-            elif error.status_code == 500:
+            elif status_code == 404:
+                # Differentiate hardware/feature limitation from missing resource
+                if any(kw in operation.lower() for kw in ("firewall acl", "firewall acl6")):
+                    cap_status = "unsupported"
+                    cap_reason = "hardware_capability"
+                    cap_detail = "Hardware ACL is unavailable on FortiGate VM64"
+                    error_msg = "Hardware ACL not available — VM64 platform limitation."
+                else:
+                    error_msg = "Resource not found. The specified item may not exist."
+            elif status_code == 424:
+                cap_status = "unavailable"
+                cap_reason = "service_disabled"
+                cap_detail = "Feature is disabled in device configuration"
+                error_msg = f"Service unavailable (424). Feature may be disabled. {error_msg}"
+            elif status_code == 400:
+                if "app-lookup" in operation.lower():
+                    cap_status = "unavailable"
+                    cap_reason = "endpoint_issue"
+                    cap_detail = "FortiOS runtime issue — ISDB app-lookup returns 400 on this build"
+                    error_msg = "UTM app lookup unavailable — FortiOS endpoint limitation."
+                else:
+                    error_msg = f"Bad request (400): {error_msg}"
+            elif status_code == 500:
                 error_msg = f"FortiGate internal server error: {error_msg}"
         elif "device" in error_msg.lower() and "not found" in error_msg.lower():
             # Keep device-not-found message intact (distinct from resource 404)
@@ -181,7 +206,7 @@ class FortiGateTool:
         elif "connection" in error_msg.lower():
             error_msg = "Connection failed. Check device network settings."
         
-        return FortiGateFormatters.format_error_response(operation, device_id, error_msg)
+        return FortiGateFormatters.format_error_response(operation, device_id, error_msg, status=cap_status, reason=cap_reason, detail=cap_detail)
 
     async def _execute_with_logging(self, operation: str, device_id: str, 
                                    func, *args, **kwargs) -> list[Content]:

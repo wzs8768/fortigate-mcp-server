@@ -238,23 +238,34 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_error_response(operation: str, device_id: str, error: str) -> list[Content]:
-        """Format error response.
-        
+    def format_error_response(
+        operation: str,
+        device_id: str,
+        error: str,
+        status: str = "failed",
+        reason: str | None = None,
+        detail: str | None = None,
+    ) -> list[Content]:
+        """Format error response with optional capability classification.
+
         Args:
             operation: Name of the operation that failed
             device_id: Target device identifier
             error: Error message
-            
-        Returns:
-            List containing formatted Content object
+            status: Error classification ("failed", "unsupported", "unavailable")
+            reason: Machine-readable reason code ("hardware_capability", "service_disabled", "endpoint_issue")
+            detail: Human-readable detail message
         """
         error_data = {
             "operation": operation,
             "device_id": device_id,
             "error": error,
-            "status": "failed"
+            "status": status,
         }
+        if reason:
+            error_data["reason"] = reason
+        if detail:
+            error_data["detail"] = detail
         return FortiGateFormatters.format_json_response(error_data, "Error")
 
     @staticmethod
