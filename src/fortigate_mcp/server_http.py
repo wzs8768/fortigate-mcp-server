@@ -2845,9 +2845,30 @@ Examples:
 
         import uvicorn
         from starlette.applications import Starlette
+        from starlette.responses import JSONResponse
+        from starlette.routing import Route
+
+        # Fast health check — no FortiGate connection needed
+        async def _health_endpoint(request):
+            devices = self.fortigate_manager.list_devices()
+            return JSONResponse({
+                "status": "ok",
+                "server_version": self.config.server.version,
+                "registered_devices": len(devices),
+                "devices": [{
+                    "device_id": d["device_id"],
+                    "os_version": d.get("os_version"),
+                    "version_detected": d.get("version_detected", False),
+                } for d in devices],
+            })
 
         def signal_handler(signum, frame):
             self.logger.info("Received signal to shutdown HTTP server...")
+            import asyncio as _asyncio
+            try:
+                _asyncio.get_event_loop().run_until_complete(self.fortigate_manager.close_all())
+            except Exception:
+                pass
             sys.exit(0)
 
         # Set up signal handlers
@@ -2890,6 +2911,7 @@ Examples:
                 sse_app = self.mcp.sse_app()
                 sh_app = self.mcp.streamable_http_app()
                 all_routes = list(sse_app.routes) + list(sh_app.routes)
+                all_routes.append(Route("/health", _health_endpoint, methods=["GET"]))
                 lifespan = sh_app.router.lifespan_context
                 combined = Starlette(debug=False, routes=all_routes, lifespan=lifespan)
                 combined.add_middleware(auth_cls)
@@ -2912,6 +2934,7 @@ Examples:
                     starlette_app = self.mcp.streamable_http_app()
 
                 starlette_app.add_middleware(auth_cls)
+                starlette_app.routes.append(Route("/health", _health_endpoint, methods=["GET"]))
 
                 config = uvicorn.Config(
                     starlette_app,
@@ -2932,7 +2955,8 @@ Examples:
                     starlette_app = self.mcp.streamable_http_app()
 
                 starlette_app.add_middleware(auth_cls)
-
+                starlette_app.routes.append(Route("/health", _health_endpoint, methods=["GET"]))
+                
                 config = uvicorn.Config(
                     starlette_app,
                     host=self.host,

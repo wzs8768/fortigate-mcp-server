@@ -2518,3 +2518,14 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+async def run_stdio_server(config_path: str) -> None:
+    """Programmatic entry point for STDIO server (used by src/main.py)."""
+
+    server = FortiGateMCPServer(config_path)
+    try:
+        await server.mcp.run_stdio_async()
+    finally:
+        await server.fortigate_manager.close_all()
+

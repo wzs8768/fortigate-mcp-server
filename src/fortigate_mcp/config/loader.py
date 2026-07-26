@@ -79,11 +79,41 @@ def load_config(config_path: str | None = None) -> Config:
         with open(config_path, 'r', encoding='utf-8') as f:
             config_data = json.load(f)
     except FileNotFoundError:
+        # Fallback: build minimal config from Docker env vars
+        docker_host = os.getenv("FORTIGATE_HOST")
+        docker_token = os.getenv("FORTIGATE_API_TOKEN")
+        if docker_host and docker_token:
+            config_data = {
+                "server": {"host": "0.0.0.0", "https_port": 8814, "http_port": 8815, "name": "fortigate-mcp-server", "version": "2.0.0"},
+                "fortigate": {"devices": {"docker": {"host": docker_host, "port": 443, "api_token": docker_token, "verify_ssl": False, "timeout": 30}}},
+                "auth": {"require_auth": True, "api_tokens": [{"name": "docker", "token": os.getenv("MCP_AUTH_TOKEN", "")}]},
+                "logging": {"level": os.getenv("LOG_LEVEL", "INFO"), "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s", "file": "logs/server.log", "console": True},
+            }
+        else:
+            raise FileNotFoundError(f"Configuration file not found: {config_path}")
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON in config file: {e}")
     except Exception as e:
         raise ValueError(f"Failed to load config file: {e}")
+
+    # Apply Docker env var overrides on top of loaded config
+    docker_host = os.getenv("FORTIGATE_HOST")
+    docker_token = os.getenv("FORTIGATE_API_TOKEN")
+    if docker_host and docker_token and "fortigate" in config_data and "devices" in config_data.get("fortigate", {}):
+        # Override first device in config (Docker single-device pattern)
+        first_device = next(iter(config_data["fortigate"]["devices"].values()), {})
+        first_device["host"] = docker_host
+        first_device["api_token"] = docker_token
+    mcp_token = os.getenv("MCP_AUTH_TOKEN")
+    if mcp_token and "auth" in config_data:
+        config_data.setdefault("auth", {})
+        if not config_data["auth"].get("api_tokens"):
+            config_data["auth"]["api_tokens"] = [{"name": "docker-env", "token": mcp_token}]
+    log_level = os.getenv("LOG_LEVEL")
+    if log_level:
+        config_data.setdefault("logging", {})
+        config_data["logging"]["level"] = log_level
 
     # Validate configuration structure
     if not isinstance(config_data, dict):

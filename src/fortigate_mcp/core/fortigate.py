@@ -197,10 +197,10 @@ class FortiGateAPI:
         # Build URL
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
 
-        # Setup parameters
-        if not params:
-            params = {}
-        params["vdom"] = vdom or self.config.vdom
+        # Setup parameters — copy to avoid mutating caller's dict
+        params = dict(params) if params else {}
+        if vdom or self.config.vdom:
+            params["vdom"] = vdom or self.config.vdom
 
         start_time = time.time()
 
@@ -209,7 +209,7 @@ class FortiGateAPI:
                 method=method,
                 url=url,
                 params=params,
-                json=data if data else None
+                json=data if data is not None else None
             )
 
             duration_ms = (time.time() - start_time) * 1000
