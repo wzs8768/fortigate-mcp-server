@@ -631,7 +631,7 @@ fortigate-mcp-server/
 │       ├── formatters.py         # MCP 内容格式化
 │       └── templates.py          # 响应模板
 ├── config/
-│   └── config.json               # 设备配置示例
+│   ├── config.json           # 用户创建的设备配置文件（从 config.example.json 复制）
 ├── tests/
 ├── README.md
 └── LICENSE
@@ -694,6 +694,7 @@ fortigate-mcp-server/
 | Job | 说明 |
 |-----|------|
 | Lint | `ruff check src/` 代码风格检查 |
+| Test | `pytest tests/` 全量 136 测试（Python 3.11 + 3.12 矩阵） |
 | Build | `python -m build` 验证包结构 |
 | Docker | `docker build` 验证镜像构建 |
 
