@@ -2020,7 +2020,7 @@ Returns: Update confirmation.""")
     # ============================================================
     # Generic CMDB tools (covers ALL 1023+ FortiOS 8.0.0 endpoints)
     # ============================================================
-    @mcp.tool(description="""List resources at any CMDB path (covers ALL FortiOS 8.0.0 endpoints). SUB-TABLES use "." NOT "/" (e.g. firewall.addrgrp, firewall.service/custom, router/static)""")
+    @mcp.tool(description="""List resources at any CMDB path (covers ALL FortiOS 8.0.0 endpoints). All paths use "/" separator (e.g. firewall/addrgrp, firewall.service/custom, router/static)""")
     async def cmdb_list(
         device_id: Annotated[str, Field(description="FortiGate device identifier")],
         path: Annotated[str, Field(description="CMDB path, e.g. firewall/address, router/bgp, system/dns")],

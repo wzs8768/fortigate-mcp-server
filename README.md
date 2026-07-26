@@ -594,7 +594,7 @@ OpenClaw（需使用 `rejectUnauthorized` 字段，`mcp.servers` 块放在 `open
 ### CMDB 通用 CRUD (5)
 `cmdb_list` `cmdb_get` `cmdb_create` `cmdb_update` `cmdb_delete`
 
-> 路径格式：`cmdb_list` 子表用 `.`（如 `firewall.addrgrp`，`firewall.service/custom`）；`cmdb_get/create/update/delete` 用 `/`（如 `firewall/addrgrp`，`firewall/address`）
+> 路径格式：所有 CMDB 操作均使用 `/` 分隔符（如 `firewall/addrgrp`，`firewall.service/custom`）。FortiOS API URL 始终使用 `/`，不支持 `.` 表示法。
 
 ### 其他 (4)
 `health_check` `get_server_info` `get_alertemail_setting` `get_endpoint_control_settings`
