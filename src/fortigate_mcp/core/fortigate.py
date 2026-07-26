@@ -601,10 +601,17 @@ class FortiGateAPI:
 
     async def create_schedule_recurring(self, data: dict[str, Any], vdom: str | None = None) -> dict[str, Any]:
         """Create new recurring schedule."""
+        data = dict(data)  # Don't mutate caller's dict
+        # FortiOS expects day as space-separated string, not array
+        if isinstance(data.get("day"), list):
+            data["day"] = " ".join(data["day"])
         return await self._make_request("POST", "cmdb/firewall.schedule/recurring", data=data, vdom=vdom)
 
     async def update_schedule_recurring(self, name: str, data: dict[str, Any], vdom: str | None = None) -> dict[str, Any]:
         """Update existing recurring schedule."""
+        data = dict(data)
+        if isinstance(data.get("day"), list):
+            data["day"] = " ".join(data["day"])
         encoded = urllib.parse.quote(name, safe='')
         return await self._make_request("PUT", f"cmdb/firewall.schedule/recurring/{encoded}", data=data, vdom=vdom)
 
@@ -2597,7 +2604,7 @@ class FortiGateAPI:
         return await self._make_monitor_request("virtual-wan/sla-log", vdom=vdom)
 
     async def monitor_utm_app_lookup(self, app_name: str, vdom: str | None = None) -> dict[str, Any]:
-        return await self._make_monitor_request("utm/app-lookup", params={"application": app_name}, vdom=vdom)
+        return await self._make_monitor_request("utm/app-lookup", params={"hosts": app_name}, vdom=vdom)
 
     async def monitor_utm_application_categories(self, vdom: str | None = None) -> dict[str, Any]:
         return await self._make_monitor_request("utm/application-categories", vdom=vdom)
