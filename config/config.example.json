@@ -24,7 +24,8 @@
         "api_token": "your-api-token-here",
         "vdom": "root",
         "verify_ssl": false,
-        "timeout": 30
+        "timeout": 30,
+        "os_version": "7.6.7"
       }
     }
   },

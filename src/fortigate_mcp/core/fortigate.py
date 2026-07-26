@@ -48,6 +48,10 @@ class FortiGateAPI:
         self.config = config
         self.logger = get_logger(f"device.{device_id}")
 
+        # Version support: use config value if set, auto-detect otherwise
+        self.version = config.os_version
+        self._version_detected = config.os_version is not None
+
         # Build base URL
         self.base_url = f"https://{config.host}:{config.port}/api/v2"
 
@@ -87,6 +91,76 @@ class FortiGateAPI:
     async def close(self):
         """Close the underlying HTTP client and release connection pool resources."""
         await self._client.aclose()
+
+    async def detect_version(self) -> Optional[str]:
+        """Detect FortiOS version from device system status.
+
+        Queries ``monitor/system/status`` and extracts the version string
+        (e.g. '7.6.7', '8.0.0'). Stores result in ``self.version`` so
+        subsequent calls are instant.
+
+        Returns:
+            Version string (e.g. '7.6.7') or None if detection fails.
+        """
+        if self._version_detected:
+            return self.version
+        
+        try:
+            status = await self._make_request("GET", "monitor/system/status")
+            # version field can be at top level or inside results
+            raw_version = status.get("version", "") or status.get("results", {}).get("version", "")
+            # FortiOS version format: "v7.6.7,buildxxxx" or "v8.0.0,buildxxxx"
+            if raw_version:
+                # Extract major.minor.patch
+                import re
+                m = re.match(r'v?(\d+\.\d+\.\d+)', str(raw_version))
+                if m:
+                    self.version = m.group(1)
+                    self._version_detected = True
+                    self.config.os_version = self.version
+                    self.logger.info(f"Detected FortiOS version: {self.version}")
+                else:
+                    self.logger.warning(
+                        f"Unexpected version format from {self.device_id}: {raw_version}"
+                    )
+            return self.version
+        except Exception as e:
+            self.logger.warning(f"Failed to detect FortiOS version for {self.device_id}: {e}")
+            return None
+
+    def is_version_compatible(self, min_version: str, max_version: Optional[str] = None) -> bool:
+        """Check if device version is within a compatible range.
+
+        Args:
+            min_version: Minimum supported version (e.g. '7.6.7')
+            max_version: Optional maximum (e.g. '8.0.0'). If None, only checks minimum.
+
+        Returns:
+            True if version >= min_version and (optionally) <= max_version.
+            Returns True if version is unknown (permissive fallback).
+        """
+        if not self.version:
+            return True  # Unknown version: assume compatible
+        
+        try:
+            from packaging.version import Version
+            v = Version(self.version)
+            if v < Version(min_version):
+                return False
+            if max_version and v > Version(max_version):
+                return False
+            return True
+        except Exception:
+            return True  # Parse error: assume compatible
+
+    def version_major(self) -> Optional[int]:
+        """Return major version number (e.g. 7 for '7.6.7', 8 for '8.0.0')."""
+        if not self.version:
+            return None
+        try:
+            return int(self.version.split('.')[0])
+        except (ValueError, IndexError):
+            return None
 
     async def __aenter__(self):
         return self
@@ -249,8 +323,24 @@ class FortiGateAPI:
 
     # System endpoints
     async def get_system_status(self, vdom: Optional[str] = None) -> Dict[str, Any]:
-        """Get system status information."""
-        return await self._make_request("GET", "monitor/system/status", vdom=vdom)
+        """Get system status information. Also triggers version detection on first call."""
+        result = await self._make_request("GET", "monitor/system/status", vdom=vdom)
+        # Auto-detect version on first call
+        if not self._version_detected:
+            try:
+                # version field can be at top level or inside results
+                raw_version = result.get("version", "") or result.get("results", {}).get("version", "")
+                if raw_version:
+                    import re
+                    m = re.match(r'v?(\d+\.\d+\.\d+)', str(raw_version))
+                    if m:
+                        self.version = m.group(1)
+                        self._version_detected = True
+                        self.config.os_version = self.version
+                        self.logger.info(f"Detected FortiOS version: {self.version}")
+            except Exception:
+                pass
+        return result
 
     async def get_system_interface(self, vdom: Optional[str] = None) -> Dict[str, Any]:
         """Get system interface information."""
@@ -2826,7 +2916,8 @@ class FortiGateManager:
         """List all registered device IDs with configuration details.
 
         Returns:
-            List of dicts with device_id, host, port, vdom, auth_method, ssl_status
+            List of dicts with device_id, host, port, vdom, auth_method, ssl_status, 
+            os_version, version_detected
         """
         result = []
         for device_id, api in self.devices.items():
@@ -2840,13 +2931,16 @@ class FortiGateManager:
                 "auth_method": auth_method,
                 "verify_ssl": cfg.verify_ssl,
                 "timeout": cfg.timeout,
+                "os_version": api.version or "unknown",
+                "version_detected": api._version_detected,
             })
         return result
 
     def add_device(self, device_id: str, host: str, port: int = 443,
                    username: Optional[str] = None, password: Optional[str] = None,
                    api_token: Optional[str] = None, vdom: str = "root",
-                   verify_ssl: bool = True, timeout: int = 30) -> None:
+                   verify_ssl: bool = True, timeout: int = 30,
+                   os_version: Optional[str] = None) -> None:
         """Add a new device to the manager.
 
         Args:
@@ -2859,6 +2953,7 @@ class FortiGateManager:
             vdom: Virtual Domain name
             verify_ssl: Whether to verify SSL certificates
             timeout: Request timeout in seconds
+            os_version: Optional FortiOS version (e.g. '7.6.7'). Auto-detected if not provided.
         """
         if device_id in self.devices:
             raise ValueError(f"Device '{device_id}' already exists")
@@ -2872,7 +2967,8 @@ class FortiGateManager:
             api_token=api_token,
             vdom=vdom,
             verify_ssl=verify_ssl,
-            timeout=timeout
+            timeout=timeout,
+            os_version=os_version,
         )
 
         # Create API client

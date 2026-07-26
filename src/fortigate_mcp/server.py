@@ -17,7 +17,11 @@ The server exposes a set of tools for managing FortiGate resources including:
 import os
 import sys
 import signal
-from typing import Optional, Annotated, Dict, Any
+from typing import Optional, Dict, Any
+try:
+    from typing import Annotated
+except ImportError:
+    from typing_extensions import Annotated
 from datetime import datetime
 
 from mcp.server.fastmcp import FastMCP
@@ -2434,13 +2438,23 @@ Returns: Update confirmation.""")
 
         @self.mcp.tool(description=GET_SERVER_INFO_DESC)
         async def get_server_info():
+            tool_count = len(self.mcp._tool_manager._tools) if hasattr(self.mcp, '_tool_manager') else 0
+            # Build per-device version info
+            device_versions = {}
+            for did, api in self.fortigate_manager.devices.items():
+                device_versions[did] = {
+                    "os_version": api.version or "unknown",
+                    "version_detected": api._version_detected,
+                }
             info = {
                 "name": self.config.server.name,
                 "version": self.config.server.version,
                 "host": self.config.server.host,
                 "port": self.config.server.https_port,
                 "registered_devices": len(self.fortigate_manager.devices),
-                "available_tools": "278 MCP tools across 9 categories: Device, Firewall, Network, Routing, Schedules, Resources, Security, System, Monitor (47 tools)",
+                "available_tools": f"{tool_count} tools",
+                "device_ids": list(self.fortigate_manager.devices.keys()),
+                "device_versions": device_versions,
             }
             from .formatting import FortiGateFormatters
             return FortiGateFormatters.format_json_response(info, "Server Information")

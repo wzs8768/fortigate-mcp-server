@@ -30,6 +30,7 @@ class FortiGateDeviceConfig(BaseModel):
     vdom: str = Field(default="root", description="Virtual Domain name")
     verify_ssl: bool = Field(default=True, description="SSL certificate verification (disable only for testing)")
     timeout: int = Field(default=30, description="Request timeout in seconds")
+    os_version: Optional[str] = Field(default=None, description="FortiOS version (e.g. '7.6.7', '8.0.0'). Auto-detected on first request if not set. Supports version-aware endpoint routing.")
 
 class FortiGateConfig(BaseModel):
     """Model for FortiGate devices configuration.

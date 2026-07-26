@@ -29,11 +29,15 @@ class FortiGateTemplates:
             return "No FortiGate devices configured"
         
         lines = ["FortiGate Devices", ""]
-        
+
         for device_id, info in devices.items():
+            version_str = info.get('os_version', 'N/A')
+            version_detected = info.get('version_detected', False)
+            version_label = version_str if version_detected else f"{version_str} (auto-detect pending)"
             lines.extend([
                 f"Device: {device_id}",
                 f"  Host: {info['host']}:{info['port']}",
+                f"  Version: {version_label}",
                 f"  VDOM: {info['vdom']}",
                 f"  Auth: {info['auth_method']}",
                 f"  SSL Verify: {'Yes' if info['verify_ssl'] else 'No'}",

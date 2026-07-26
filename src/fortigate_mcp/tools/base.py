@@ -91,7 +91,8 @@ class FortiGateTool:
                         vdom = d.get("vdom", "root")
                         auth = d.get("auth_method", "?")
                         ssl = "✓" if d.get("verify_ssl") else "✗"
-                        lines.append(f"  • **{dev_id}** — {host}:{port} (vdom={vdom}, auth={auth}, SSL={ssl})")
+                        ver = d.get("os_version", "?")
+                        lines.append(f"  • **{dev_id}** — {host}:{port} (v{vdom}, {auth}, SSL={ssl}, v{ver})")
                     else:
                         lines.append(f"  • {d}")
                 return [Content(type="text", text="\n".join(lines))]
