@@ -215,7 +215,7 @@ class TestErrorClassification:
         from src.fortigate_mcp.core.fortigate import FortiGateAPIError
 
         api = AsyncMock()
-        api.list_firewall_policies = AsyncMock(
+        api.get_firewall_policies = AsyncMock(
             side_effect=FortiGateAPIError("Internal error", status_code=500, device_id="d")
         )
         mgr = MagicMock()
