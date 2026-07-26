@@ -19,6 +19,6 @@ from .server import FortiGateMCPServer
 from .server_http import FortiGateMCPHTTPServer
 
 __all__ = [
-    "FortiGateMCPServer", 
     "FortiGateMCPHTTPServer",
+    "FortiGateMCPServer",
 ]

@@ -1,7 +1,10 @@
 """Resource management tools for FortiGate MCP (IP pools, shapers, SNAT, etc.)."""
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from mcp.types import TextContent as Content
+
 from .base import FortiGateTool
+
 
 class ResourceTools(FortiGateTool):
     """Tools for FortiGate resource management."""
@@ -9,7 +12,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # IP Pool tools
     # ============================================================
-    async def list_ippools(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_ippools(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -18,8 +21,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list IP pools", device_id, e)
 
-    async def create_ippool(self, device_id: str, data: Dict[str, Any],
-                     vdom: Optional[str] = None) -> List[Content]:
+    async def create_ippool(self, device_id: str, data: dict[str, Any],
+                     vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -29,8 +32,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create IP pool", device_id, e)
 
-    async def update_ippool(self, device_id: str, name: str, data: Dict[str, Any],
-                     vdom: Optional[str] = None) -> List[Content]:
+    async def update_ippool(self, device_id: str, name: str, data: dict[str, Any],
+                     vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -41,7 +44,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update IP pool", device_id, e)
 
     async def delete_ippool(self, device_id: str, name: str,
-                     vdom: Optional[str] = None) -> List[Content]:
+                     vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -54,7 +57,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # VIP Group tools
     # ============================================================
-    async def list_vipgrps(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_vipgrps(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -63,8 +66,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list VIP groups", device_id, e)
 
-    async def create_vipgrp(self, device_id: str, data: Dict[str, Any],
-                     vdom: Optional[str] = None) -> List[Content]:
+    async def create_vipgrp(self, device_id: str, data: dict[str, Any],
+                     vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -74,8 +77,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create VIP group", device_id, e)
 
-    async def update_vipgrp(self, device_id: str, name: str, data: Dict[str, Any],
-                     vdom: Optional[str] = None) -> List[Content]:
+    async def update_vipgrp(self, device_id: str, name: str, data: dict[str, Any],
+                     vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -86,7 +89,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update VIP group", device_id, e)
 
     async def delete_vipgrp(self, device_id: str, name: str,
-                     vdom: Optional[str] = None) -> List[Content]:
+                     vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -99,7 +102,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # Traffic Shaper tools
     # ============================================================
-    async def list_traffic_shapers(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_traffic_shapers(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -108,8 +111,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list traffic shapers", device_id, e)
 
-    async def create_traffic_shaper(self, device_id: str, data: Dict[str, Any],
-                             vdom: Optional[str] = None) -> List[Content]:
+    async def create_traffic_shaper(self, device_id: str, data: dict[str, Any],
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -119,8 +122,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create traffic shaper", device_id, e)
 
-    async def update_traffic_shaper(self, device_id: str, name: str, data: Dict[str, Any],
-                             vdom: Optional[str] = None) -> List[Content]:
+    async def update_traffic_shaper(self, device_id: str, name: str, data: dict[str, Any],
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -131,7 +134,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update traffic shaper", device_id, e)
 
     async def delete_traffic_shaper(self, device_id: str, name: str,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -144,7 +147,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # Per-IP Shaper tools
     # ============================================================
-    async def list_per_ip_shapers(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_per_ip_shapers(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -153,8 +156,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list per-IP shapers", device_id, e)
 
-    async def create_per_ip_shaper(self, device_id: str, data: Dict[str, Any],
-                            vdom: Optional[str] = None) -> List[Content]:
+    async def create_per_ip_shaper(self, device_id: str, data: dict[str, Any],
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -164,8 +167,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create per-IP shaper", device_id, e)
 
-    async def update_per_ip_shaper(self, device_id: str, name: str, data: Dict[str, Any],
-                            vdom: Optional[str] = None) -> List[Content]:
+    async def update_per_ip_shaper(self, device_id: str, name: str, data: dict[str, Any],
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -176,7 +179,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update per-IP shaper", device_id, e)
 
     async def delete_per_ip_shaper(self, device_id: str, name: str,
-                            vdom: Optional[str] = None) -> List[Content]:
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -189,7 +192,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # Central SNAT Map tools
     # ============================================================
-    async def list_central_snat_maps(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_central_snat_maps(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -198,8 +201,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list central SNAT maps", device_id, e)
 
-    async def create_central_snat_map(self, device_id: str, data: Dict[str, Any],
-                               vdom: Optional[str] = None) -> List[Content]:
+    async def create_central_snat_map(self, device_id: str, data: dict[str, Any],
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -209,8 +212,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create central SNAT map", device_id, e)
 
-    async def update_central_snat_map(self, device_id: str, policy_id: str, data: Dict[str, Any],
-                               vdom: Optional[str] = None) -> List[Content]:
+    async def update_central_snat_map(self, device_id: str, policy_id: str, data: dict[str, Any],
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -221,7 +224,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update central SNAT map", device_id, e)
 
     async def delete_central_snat_map(self, device_id: str, policy_id: str,
-                               vdom: Optional[str] = None) -> List[Content]:
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -232,7 +235,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("delete central SNAT map", device_id, e)
 
     async def get_central_snat_map_detail(self, device_id: str, policy_id: str,
-                                   vdom: Optional[str] = None) -> List[Content]:
+                                   vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -245,7 +248,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # IP Translation tools
     # ============================================================
-    async def list_ip_translations(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_ip_translations(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -254,8 +257,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list IP translations", device_id, e)
 
-    async def create_ip_translation(self, device_id: str, data: Dict[str, Any],
-                             vdom: Optional[str] = None) -> List[Content]:
+    async def create_ip_translation(self, device_id: str, data: dict[str, Any],
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -265,8 +268,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create IP translation", device_id, e)
 
-    async def update_ip_translation(self, device_id: str, trans_id: str, data: Dict[str, Any],
-                             vdom: Optional[str] = None) -> List[Content]:
+    async def update_ip_translation(self, device_id: str, trans_id: str, data: dict[str, Any],
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(trans_id=trans_id)
@@ -277,7 +280,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update IP translation", device_id, e)
 
     async def delete_ip_translation(self, device_id: str, trans_id: str,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(trans_id=trans_id)
@@ -290,7 +293,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # Identity-based Route tools
     # ============================================================
-    async def list_identity_based_routes(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_identity_based_routes(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -299,8 +302,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list identity-based routes", device_id, e)
 
-    async def create_identity_based_route(self, device_id: str, data: Dict[str, Any],
-                                   vdom: Optional[str] = None) -> List[Content]:
+    async def create_identity_based_route(self, device_id: str, data: dict[str, Any],
+                                   vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -310,8 +313,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create identity-based route", device_id, e)
 
-    async def update_identity_based_route(self, device_id: str, name: str, data: Dict[str, Any],
-                                   vdom: Optional[str] = None) -> List[Content]:
+    async def update_identity_based_route(self, device_id: str, name: str, data: dict[str, Any],
+                                   vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -322,7 +325,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update identity-based route", device_id, e)
 
     async def delete_identity_based_route(self, device_id: str, name: str,
-                                   vdom: Optional[str] = None) -> List[Content]:
+                                   vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -335,7 +338,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # DNS Translation tools
     # ============================================================
-    async def list_dns_translations(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_dns_translations(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -344,8 +347,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list DNS translations", device_id, e)
 
-    async def create_dns_translation(self, device_id: str, data: Dict[str, Any],
-                              vdom: Optional[str] = None) -> List[Content]:
+    async def create_dns_translation(self, device_id: str, data: dict[str, Any],
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -355,8 +358,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create DNS translation", device_id, e)
 
-    async def update_dns_translation(self, device_id: str, trans_id: str, data: Dict[str, Any],
-                              vdom: Optional[str] = None) -> List[Content]:
+    async def update_dns_translation(self, device_id: str, trans_id: str, data: dict[str, Any],
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(trans_id=trans_id)
@@ -367,7 +370,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update DNS translation", device_id, e)
 
     async def delete_dns_translation(self, device_id: str, trans_id: str,
-                              vdom: Optional[str] = None) -> List[Content]:
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(trans_id=trans_id)
@@ -380,7 +383,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # TTL Policy tools
     # ============================================================
-    async def list_ttl_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_ttl_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -389,8 +392,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list TTL policies", device_id, e)
 
-    async def create_ttl_policy(self, device_id: str, data: Dict[str, Any],
-                         vdom: Optional[str] = None) -> List[Content]:
+    async def create_ttl_policy(self, device_id: str, data: dict[str, Any],
+                         vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -400,8 +403,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create TTL policy", device_id, e)
 
-    async def update_ttl_policy(self, device_id: str, policy_id: str, data: Dict[str, Any],
-                         vdom: Optional[str] = None) -> List[Content]:
+    async def update_ttl_policy(self, device_id: str, policy_id: str, data: dict[str, Any],
+                         vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -412,7 +415,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update TTL policy", device_id, e)
 
     async def delete_ttl_policy(self, device_id: str, policy_id: str,
-                         vdom: Optional[str] = None) -> List[Content]:
+                         vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -425,7 +428,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # Decrypted Traffic Mirror tools
     # ============================================================
-    async def list_decrypted_traffic_mirrors(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_decrypted_traffic_mirrors(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -434,8 +437,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list decrypted traffic mirrors", device_id, e)
 
-    async def create_decrypted_traffic_mirror(self, device_id: str, data: Dict[str, Any],
-                                       vdom: Optional[str] = None) -> List[Content]:
+    async def create_decrypted_traffic_mirror(self, device_id: str, data: dict[str, Any],
+                                       vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -445,8 +448,8 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create decrypted traffic mirror", device_id, e)
 
-    async def update_decrypted_traffic_mirror(self, device_id: str, name: str, data: Dict[str, Any],
-                                       vdom: Optional[str] = None) -> List[Content]:
+    async def update_decrypted_traffic_mirror(self, device_id: str, name: str, data: dict[str, Any],
+                                       vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -457,7 +460,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("update decrypted traffic mirror", device_id, e)
 
     async def delete_decrypted_traffic_mirror(self, device_id: str, name: str,
-                                       vdom: Optional[str] = None) -> List[Content]:
+                                       vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -470,7 +473,7 @@ class ResourceTools(FortiGateTool):
     # ============================================================
     # Monitor tools
     # ============================================================
-    async def monitor_vpn_ipsec(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_vpn_ipsec(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -479,7 +482,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor IPSec VPN", device_id, e)
 
-    async def monitor_vpn_ipsec_connection_count(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_vpn_ipsec_connection_count(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -488,7 +491,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor IPSec VPN connection count", device_id, e)
 
-    async def monitor_vpn_ssl(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_vpn_ssl(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -497,7 +500,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor SSL VPN status", device_id, e)
 
-    async def monitor_vpn_ssl_stats(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_vpn_ssl_stats(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -506,7 +509,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor SSL VPN statistics", device_id, e)
 
-    async def monitor_user_firewall(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_user_firewall(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -515,7 +518,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor firewall users", device_id, e)
 
-    async def monitor_user_firewall_count(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_user_firewall_count(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -524,7 +527,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor firewall user count", device_id, e)
 
-    async def monitor_user_banned(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_user_banned(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -533,7 +536,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor banned users", device_id, e)
 
-    async def monitor_user_fsso(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_user_fsso(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -542,7 +545,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor FSSO users", device_id, e)
 
-    async def monitor_virtual_wan_health_check(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_virtual_wan_health_check(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -551,7 +554,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor SD-WAN health checks", device_id, e)
 
-    async def monitor_virtual_wan_members(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_virtual_wan_members(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -560,7 +563,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor SD-WAN members", device_id, e)
 
-    async def monitor_virtual_wan_sla_log(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_virtual_wan_sla_log(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -569,7 +572,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor SD-WAN SLA log", device_id, e)
 
-    async def monitor_utm_app_lookup(self, device_id: str, app_name: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_utm_app_lookup(self, device_id: str, app_name: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -578,7 +581,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor UTM app lookup", device_id, e)
 
-    async def monitor_utm_application_categories(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_utm_application_categories(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -587,7 +590,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor UTM app categories", device_id, e)
 
-    async def monitor_utm_applications(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_utm_applications(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -596,7 +599,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor UTM applications", device_id, e)
 
-    async def monitor_router_ipv4(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_router_ipv4(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -605,7 +608,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor IPv4 routing table", device_id, e)
 
-    async def monitor_router_ipv6(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_router_ipv6(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -614,7 +617,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor IPv6 routing table", device_id, e)
 
-    async def monitor_firewall_acl(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_firewall_acl(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -623,7 +626,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor firewall ACL", device_id, e)
 
-    async def monitor_firewall_acl6(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_firewall_acl6(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -632,7 +635,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor firewall ACL6", device_id, e)
 
-    async def monitor_license_status(self, device_id: str) -> List[Content]:
+    async def monitor_license_status(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -641,7 +644,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor license status", device_id, e)
 
-    async def monitor_log_current_disk_usage(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_log_current_disk_usage(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -650,7 +653,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor log disk usage", device_id, e)
 
-    async def monitor_log_fortianalyzer(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_log_fortianalyzer(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -659,7 +662,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor FortiAnalyzer log status", device_id, e)
 
-    async def monitor_log_forticloud(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_log_forticloud(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -668,7 +671,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor FortiCloud log status", device_id, e)
 
-    async def monitor_ips_rate_based(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_ips_rate_based(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -677,7 +680,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor IPS rate-based", device_id, e)
 
-    async def monitor_ips_session_performance(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_ips_session_performance(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -686,7 +689,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor IPS session performance", device_id, e)
 
-    async def monitor_fortiguard_service_stats(self, device_id: str) -> List[Content]:
+    async def monitor_fortiguard_service_stats(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -695,7 +698,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor FortiGuard service stats", device_id, e)
 
-    async def monitor_geoip_query(self, device_id: str, ip: str) -> List[Content]:
+    async def monitor_geoip_query(self, device_id: str, ip: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -704,7 +707,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor GeoIP query", device_id, e)
 
-    async def monitor_fortiview_realtime_stats(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_fortiview_realtime_stats(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -713,7 +716,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor FortiView realtime stats", device_id, e)
 
-    async def monitor_network_arp(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_network_arp(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -722,7 +725,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor ARP table", device_id, e)
 
-    async def monitor_network_lldp_neighbors(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_network_lldp_neighbors(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -731,7 +734,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor LLDP neighbors", device_id, e)
 
-    async def monitor_network_dns_latency(self, device_id: str) -> List[Content]:
+    async def monitor_network_dns_latency(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -740,7 +743,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor DNS latency", device_id, e)
 
-    async def monitor_network_reverse_ip_lookup(self, device_id: str, ip: str) -> List[Content]:
+    async def monitor_network_reverse_ip_lookup(self, device_id: str, ip: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -749,7 +752,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor reverse IP lookup", device_id, e)
 
-    async def monitor_router_bgp_neighbors(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_router_bgp_neighbors(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -758,7 +761,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor BGP neighbors", device_id, e)
 
-    async def monitor_router_bgp_paths(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_router_bgp_paths(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -767,7 +770,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor BGP paths", device_id, e)
 
-    async def monitor_system_available_interfaces(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_system_available_interfaces(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -776,7 +779,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor available interfaces", device_id, e)
 
-    async def monitor_registration_forticloud_status(self, device_id: str) -> List[Content]:
+    async def monitor_registration_forticloud_status(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -785,7 +788,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor FortiCloud registration", device_id, e)
 
-    async def monitor_webfilter_fortiguard_categories(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_webfilter_fortiguard_categories(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -795,7 +798,7 @@ class ResourceTools(FortiGateTool):
             return self._handle_error("monitor web filter categories", device_id, e)
 
     # --- New system/firewall monitor ---
-    async def monitor_system_status(self, device_id: str) -> List[Content]:
+    async def monitor_system_status(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -828,8 +831,8 @@ class ResourceTools(FortiGateTool):
             result["results"] = filtered
         return result
 
-    async def monitor_system_resource_usage(self, device_id: str, vdom: Optional[str] = None,
-                                             scope: str = "current") -> List[Content]:
+    async def monitor_system_resource_usage(self, device_id: str, vdom: str | None = None,
+                                             scope: str = "current") -> list[Content]:
         """Get CPU, memory, and session resource usage.
         
         Args:
@@ -847,7 +850,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor CPU/memory/session usage", device_id, e)
 
-    async def monitor_system_performance_status(self, device_id: str) -> List[Content]:
+    async def monitor_system_performance_status(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -856,7 +859,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor system performance status", device_id, e)
 
-    async def monitor_system_interface(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_system_interface(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -865,7 +868,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor interface bandwidth", device_id, e)
 
-    async def monitor_system_current_admins(self, device_id: str) -> List[Content]:
+    async def monitor_system_current_admins(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -874,7 +877,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor logged-in admins", device_id, e)
 
-    async def monitor_system_firmware(self, device_id: str) -> List[Content]:
+    async def monitor_system_firmware(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -883,7 +886,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor firmware version", device_id, e)
 
-    async def monitor_system_vm_information(self, device_id: str) -> List[Content]:
+    async def monitor_system_vm_information(self, device_id: str) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -892,7 +895,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor VM platform info", device_id, e)
 
-    async def monitor_firewall_policy(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_firewall_policy(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -901,7 +904,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor firewall policy stats", device_id, e)
 
-    async def monitor_firewall_sessions(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_firewall_sessions(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -910,7 +913,7 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor session table", device_id, e)
 
-    async def monitor_firewall_policy_lookup(self, device_id: str, params: dict, vdom: Optional[str] = None) -> List[Content]:
+    async def monitor_firewall_policy_lookup(self, device_id: str, params: dict, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -921,10 +924,10 @@ class ResourceTools(FortiGateTool):
 
     # --- Generic monitor ---
     async def monitor_request(self, device_id: str, endpoint: str,
-                               params: Optional[dict] = None,
-                               vdom: Optional[str] = None,
+                               params: dict | None = None,
+                               vdom: str | None = None,
                                method: str = "GET",
-                               data: Optional[dict] = None) -> List[Content]:
+                               data: dict | None = None) -> list[Content]:
         """Generic monitor API — access ANY /api/v2/monitor/ endpoint (GET + POST)."""
         try:
             self._validate_device_exists(device_id)

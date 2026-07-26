@@ -1,7 +1,10 @@
 """Schedule management tools for FortiGate MCP."""
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from mcp.types import TextContent as Content
+
 from .base import FortiGateTool
+
 
 class ScheduleTools(FortiGateTool):
     """Tools for FortiGate schedule management."""
@@ -9,7 +12,7 @@ class ScheduleTools(FortiGateTool):
     # ============================================================
     # Onetime Schedule tools
     # ============================================================
-    async def list_schedule_onetime(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_schedule_onetime(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List onetime schedules."""
         try:
             self._validate_device_exists(device_id)
@@ -19,8 +22,8 @@ class ScheduleTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list onetime schedules", device_id, e)
 
-    async def create_schedule_onetime(self, device_id: str, data: Dict[str, Any],
-                               vdom: Optional[str] = None) -> List[Content]:
+    async def create_schedule_onetime(self, device_id: str, data: dict[str, Any],
+                               vdom: str | None = None) -> list[Content]:
         """Create onetime schedule."""
         try:
             self._validate_device_exists(device_id)
@@ -31,8 +34,8 @@ class ScheduleTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create onetime schedule", device_id, e)
 
-    async def update_schedule_onetime(self, device_id: str, name: str, data: Dict[str, Any],
-                               vdom: Optional[str] = None) -> List[Content]:
+    async def update_schedule_onetime(self, device_id: str, name: str, data: dict[str, Any],
+                               vdom: str | None = None) -> list[Content]:
         """Update onetime schedule."""
         try:
             self._validate_device_exists(device_id)
@@ -44,7 +47,7 @@ class ScheduleTools(FortiGateTool):
             return self._handle_error("update onetime schedule", device_id, e)
 
     async def delete_schedule_onetime(self, device_id: str, name: str,
-                               vdom: Optional[str] = None) -> List[Content]:
+                               vdom: str | None = None) -> list[Content]:
         """Delete onetime schedule."""
         try:
             self._validate_device_exists(device_id)
@@ -58,7 +61,7 @@ class ScheduleTools(FortiGateTool):
     # ============================================================
     # Recurring Schedule tools
     # ============================================================
-    async def list_schedule_recurring(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_schedule_recurring(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List recurring schedules."""
         try:
             self._validate_device_exists(device_id)
@@ -68,8 +71,8 @@ class ScheduleTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list recurring schedules", device_id, e)
 
-    async def create_schedule_recurring(self, device_id: str, data: Dict[str, Any],
-                                 vdom: Optional[str] = None) -> List[Content]:
+    async def create_schedule_recurring(self, device_id: str, data: dict[str, Any],
+                                 vdom: str | None = None) -> list[Content]:
         """Create recurring schedule."""
         try:
             self._validate_device_exists(device_id)
@@ -80,8 +83,8 @@ class ScheduleTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create recurring schedule", device_id, e)
 
-    async def update_schedule_recurring(self, device_id: str, name: str, data: Dict[str, Any],
-                                 vdom: Optional[str] = None) -> List[Content]:
+    async def update_schedule_recurring(self, device_id: str, name: str, data: dict[str, Any],
+                                 vdom: str | None = None) -> list[Content]:
         """Update recurring schedule."""
         try:
             self._validate_device_exists(device_id)
@@ -93,7 +96,7 @@ class ScheduleTools(FortiGateTool):
             return self._handle_error("update recurring schedule", device_id, e)
 
     async def delete_schedule_recurring(self, device_id: str, name: str,
-                                 vdom: Optional[str] = None) -> List[Content]:
+                                 vdom: str | None = None) -> list[Content]:
         """Delete recurring schedule."""
         try:
             self._validate_device_exists(device_id)
@@ -107,7 +110,7 @@ class ScheduleTools(FortiGateTool):
     # ============================================================
     # Schedule Group tools
     # ============================================================
-    async def list_schedule_group(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_schedule_group(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List schedule groups."""
         try:
             self._validate_device_exists(device_id)
@@ -117,8 +120,8 @@ class ScheduleTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list schedule groups", device_id, e)
 
-    async def create_schedule_group(self, device_id: str, data: Dict[str, Any],
-                             vdom: Optional[str] = None) -> List[Content]:
+    async def create_schedule_group(self, device_id: str, data: dict[str, Any],
+                             vdom: str | None = None) -> list[Content]:
         """Create schedule group."""
         try:
             self._validate_device_exists(device_id)
@@ -129,8 +132,8 @@ class ScheduleTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create schedule group", device_id, e)
 
-    async def update_schedule_group(self, device_id: str, name: str, data: Dict[str, Any],
-                             vdom: Optional[str] = None) -> List[Content]:
+    async def update_schedule_group(self, device_id: str, name: str, data: dict[str, Any],
+                             vdom: str | None = None) -> list[Content]:
         """Update schedule group."""
         try:
             self._validate_device_exists(device_id)
@@ -142,7 +145,7 @@ class ScheduleTools(FortiGateTool):
             return self._handle_error("update schedule group", device_id, e)
 
     async def delete_schedule_group(self, device_id: str, name: str,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         """Delete schedule group."""
         try:
             self._validate_device_exists(device_id)

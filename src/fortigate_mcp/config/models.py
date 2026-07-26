@@ -13,8 +13,9 @@ The models provide:
 - Field descriptions
 - Required vs optional field handling
 """
-from typing import Optional, Dict, List, Union
+
 from pydantic import BaseModel, Field
+
 
 class FortiGateDeviceConfig(BaseModel):
     """Model for individual FortiGate device configuration.
@@ -24,13 +25,13 @@ class FortiGateDeviceConfig(BaseModel):
     """
     host: str = Field(description="FortiGate IP address or hostname")
     port: int = Field(default=443, description="HTTPS port (default: 443)")
-    username: Optional[str] = Field(default=None, description="Username for authentication")
-    password: Optional[str] = Field(default=None, description="Password for authentication")
-    api_token: Optional[str] = Field(default=None, description="API token for authentication")
+    username: str | None = Field(default=None, description="Username for authentication")
+    password: str | None = Field(default=None, description="Password for authentication")
+    api_token: str | None = Field(default=None, description="API token for authentication")
     vdom: str = Field(default="root", description="Virtual Domain name")
     verify_ssl: bool = Field(default=True, description="SSL certificate verification (disable only for testing)")
     timeout: int = Field(default=30, description="Request timeout in seconds")
-    os_version: Optional[str] = Field(default=None, description="FortiOS version (e.g. '7.6.7', '8.0.0'). Auto-detected on first request if not set. Supports version-aware endpoint routing.")
+    os_version: str | None = Field(default=None, description="FortiOS version (e.g. '7.6.7', '8.0.0'). Auto-detected on first request if not set. Supports version-aware endpoint routing.")
 
 class FortiGateConfig(BaseModel):
     """Model for FortiGate devices configuration.
@@ -38,7 +39,7 @@ class FortiGateConfig(BaseModel):
     Contains configuration for multiple FortiGate devices.
     Each device is identified by a unique key.
     """
-    devices: Dict[str, FortiGateDeviceConfig] = Field(
+    devices: dict[str, FortiGateDeviceConfig] = Field(
         description="Dictionary of FortiGate devices keyed by device ID"
     )
 
@@ -57,11 +58,11 @@ class AuthConfig(BaseModel):
         ["token1", "token2"]
     """
     require_auth: bool = Field(default=True, description="Whether authentication is required")
-    api_tokens: List[Union[str, Dict[str, str]]] = Field(
+    api_tokens: list[str | dict[str, str]] = Field(
         default_factory=list,
         description="Valid API tokens (bare strings or {name, token} objects)",
     )
-    allowed_origins: List[str] = Field(default_factory=list, description="CORS allowed origins (NOT YET IMPLEMENTED — reserved for future use)")
+    allowed_origins: list[str] = Field(default_factory=list, description="CORS allowed origins (NOT YET IMPLEMENTED — reserved for future use)")
 
 class LoggingConfig(BaseModel):
     """Model for logging configuration.
@@ -75,7 +76,7 @@ class LoggingConfig(BaseModel):
         default="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         description="Log format string"
     )
-    file: Optional[str] = Field(default=None, description="Log file path (None for console only)")
+    file: str | None = Field(default=None, description="Log file path (None for console only)")
     console: bool = Field(default=True, description="Enable console logging")
 
 class ServerConfig(BaseModel):
@@ -86,7 +87,7 @@ class ServerConfig(BaseModel):
     """
     host: str = Field(default="0.0.0.0", description="Server bind address")
     https_port: int = Field(default=8814, description="HTTPS server port")
-    http_port: Optional[int] = Field(default=8815, description="HTTP server port (when running alongside HTTPS)")
+    http_port: int | None = Field(default=8815, description="HTTP server port (when running alongside HTTPS)")
     name: str = Field(default="fortigate-mcp-server", description="Server name")
     version: str = Field(default="1.0.0", description="Server version")
 
@@ -122,22 +123,22 @@ class DeviceCommandParams(BaseModel):
 class PolicyParams(BaseModel):
     """Parameters for firewall policy operations."""
     device_id: str = Field(description="FortiGate device ID")
-    policy_id: Optional[str] = Field(default=None, description="Policy ID for specific operations")
-    vdom: Optional[str] = Field(default=None, description="Virtual Domain (uses device default if not specified)")
+    policy_id: str | None = Field(default=None, description="Policy ID for specific operations")
+    vdom: str | None = Field(default=None, description="Virtual Domain (uses device default if not specified)")
 
 class AddressObjectParams(BaseModel):
     """Parameters for address object operations."""
     device_id: str = Field(description="FortiGate device ID")
-    name: Optional[str] = Field(default=None, description="Address object name")
-    vdom: Optional[str] = Field(default=None, description="Virtual Domain")
+    name: str | None = Field(default=None, description="Address object name")
+    vdom: str | None = Field(default=None, description="Virtual Domain")
 
 class ServiceObjectParams(BaseModel):
     """Parameters for service object operations."""
     device_id: str = Field(description="FortiGate device ID")
-    name: Optional[str] = Field(default=None, description="Service object name")
-    vdom: Optional[str] = Field(default=None, description="Virtual Domain")
+    name: str | None = Field(default=None, description="Service object name")
+    vdom: str | None = Field(default=None, description="Virtual Domain")
 
 class RouteParams(BaseModel):
     """Parameters for routing operations."""
     device_id: str = Field(description="FortiGate device ID")
-    vdom: Optional[str] = Field(default=None, description="Virtual Domain")
+    vdom: str | None = Field(default=None, description="Virtual Domain")

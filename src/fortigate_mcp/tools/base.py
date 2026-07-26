@@ -11,11 +11,14 @@ All tool implementations inherit from the FortiGateTool base class to ensure
 consistent behavior and error handling across the MCP server.
 """
 import time
-from typing import Any, List, Optional
+from typing import Any
+
 from mcp.types import TextContent as Content
+
 from ..core.fortigate import FortiGateAPI, FortiGateAPIError, FortiGateManager
 from ..core.logging import get_logger, log_tool_call
 from ..formatting import FortiGateFormatters
+
 
 class FortiGateTool:
     """Base class for FortiGate MCP tools.
@@ -58,7 +61,7 @@ class FortiGateTool:
             self.logger.error(f"Device {device_id} not found")
             raise ValueError(f"Device '{device_id}' not found. Available devices: {list(self.fortigate_manager.devices.keys())}")
 
-    def _format_response(self, data: Any, resource_type: Optional[str] = None, **kwargs) -> List[Content]:
+    def _format_response(self, data: Any, resource_type: str | None = None, **kwargs) -> list[Content]:
         """Format response data into MCP content using formatters.
 
         This method handles formatting of various FortiGate resource types into
@@ -136,7 +139,7 @@ class FortiGateTool:
             # Fallback to JSON formatting for unknown types
             return FortiGateFormatters.format_json_response(data)
 
-    def _handle_error(self, operation: str, device_id: str, error: Exception) -> List[Content]:
+    def _handle_error(self, operation: str, device_id: str, error: Exception) -> list[Content]:
         """Handle and log errors from FortiGate operations.
 
         Provides standardized error handling across all tools by:
@@ -181,7 +184,7 @@ class FortiGateTool:
         return FortiGateFormatters.format_error_response(operation, device_id, error_msg)
 
     async def _execute_with_logging(self, operation: str, device_id: str, 
-                                   func, *args, **kwargs) -> List[Content]:
+                                   func, *args, **kwargs) -> list[Content]:
         """Execute a function with logging and error handling.
         
         Args:
@@ -233,8 +236,8 @@ class FortiGateTool:
                 raise ValueError(f"Parameter '{name}' is required")
 
     def _format_operation_result(self, operation: str, device_id: str, 
-                                success: bool, details: Optional[str] = None,
-                                error: Optional[str] = None) -> List[Content]:
+                                success: bool, details: str | None = None,
+                                error: str | None = None) -> list[Content]:
         """Format operation result.
         
         Args:
@@ -252,7 +255,7 @@ class FortiGateTool:
         )
 
     def _format_connection_test(self, device_id: str, success: bool,
-                              error: Optional[str] = None) -> List[Content]:
+                              error: str | None = None) -> list[Content]:
         """Format connection test result.
         
         Args:

@@ -1,12 +1,15 @@
 """Virtual IP management tools for FortiGate MCP."""
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from mcp.types import TextContent as Content
+
 from .base import FortiGateTool
+
 
 class VirtualIPTools(FortiGateTool):
     """Tools for FortiGate Virtual IP management."""
 
-    async def list_virtual_ips(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_virtual_ips(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List virtual IPs."""
         try:
             self._validate_device_exists(device_id)
@@ -18,8 +21,8 @@ class VirtualIPTools(FortiGateTool):
 
     async def create_virtual_ip(self, device_id: str, name: str, extip: str, mappedip: str,
                          extintf: str, portforward: str = "disable",
-                         protocol: str = "tcp", extport: Optional[str] = None,
-                         mappedport: Optional[str] = None, vdom: Optional[str] = None) -> List[Content]:
+                         protocol: str = "tcp", extport: str | None = None,
+                         mappedport: str | None = None, vdom: str | None = None) -> list[Content]:
         """Create virtual IP."""
         try:
             self._validate_device_exists(device_id)
@@ -48,8 +51,8 @@ class VirtualIPTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create virtual IP", device_id, e)
 
-    async def update_virtual_ip(self, device_id: str, name: str, vip_data: Dict[str, Any],
-                         vdom: Optional[str] = None) -> List[Content]:
+    async def update_virtual_ip(self, device_id: str, name: str, vip_data: dict[str, Any],
+                         vdom: str | None = None) -> list[Content]:
         """Update virtual IP."""
         try:
             self._validate_device_exists(device_id)
@@ -61,7 +64,7 @@ class VirtualIPTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("update virtual IP", device_id, e)
 
-    async def get_virtual_ip_detail(self, device_id: str, name: str, vdom: Optional[str] = None) -> List[Content]:
+    async def get_virtual_ip_detail(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
         """Get virtual IP detail."""
         try:
             self._validate_device_exists(device_id)
@@ -73,7 +76,7 @@ class VirtualIPTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("get virtual IP detail", device_id, e)
 
-    async def delete_virtual_ip(self, device_id: str, name: str, vdom: Optional[str] = None) -> List[Content]:
+    async def delete_virtual_ip(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
         """Delete virtual IP."""
         try:
             self._validate_device_exists(device_id)

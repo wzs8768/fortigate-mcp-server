@@ -10,8 +10,9 @@ This module provides centralized logging setup with support for:
 import logging
 import logging.handlers
 import sys
-from typing import Optional
+
 from ..config.models import LoggingConfig
+
 
 def setup_logging(config: LoggingConfig) -> logging.Logger:
     """Setup logging configuration for the FortiGate MCP server.
@@ -145,8 +146,8 @@ def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(f"fortigate-mcp.{name}")
 
 def log_api_call(logger: logging.Logger, method: str, url: str, 
-                 status_code: Optional[int] = None, 
-                 duration_ms: Optional[float] = None) -> None:
+                 status_code: int | None = None, 
+                 duration_ms: float | None = None) -> None:
     """Log FortiGate API calls with structured information.
     
     Provides consistent logging for all FortiGate API interactions:
@@ -182,8 +183,8 @@ def log_api_call(logger: logging.Logger, method: str, url: str,
 
 def log_tool_call(logger: logging.Logger, tool_name: str, 
                   device_id: str, success: bool, 
-                  duration_ms: Optional[float] = None,
-                  error: Optional[str] = None) -> None:
+                  duration_ms: float | None = None,
+                  error: str | None = None) -> None:
     """Log MCP tool calls with structured information.
     
     Provides consistent logging for all MCP tool executions:

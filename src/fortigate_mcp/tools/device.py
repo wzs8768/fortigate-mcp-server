@@ -7,14 +7,16 @@ This module provides MCP tools for managing FortiGate devices:
 - System status monitoring
 - VDOM discovery
 """
-from typing import List, Optional
+
 from mcp.types import TextContent as Content
+
 from .base import FortiGateTool
+
 
 class DeviceTools(FortiGateTool):
     """Tools for FortiGate device management."""
 
-    async def list_devices(self) -> List[Content]:
+    async def list_devices(self) -> list[Content]:
         """List all registered FortiGate devices.
 
         Returns:
@@ -26,7 +28,7 @@ class DeviceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list devices", "all", e)
 
-    async def get_device_status(self, device_id: str) -> List[Content]:
+    async def get_device_status(self, device_id: str) -> list[Content]:
         """Get system status for a specific device.
 
         Args:
@@ -43,7 +45,7 @@ class DeviceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("get device status", device_id, e)
 
-    async def test_device_connection(self, device_id: str) -> List[Content]:
+    async def test_device_connection(self, device_id: str) -> list[Content]:
         """Test connection to a specific device.
 
         Args:
@@ -60,7 +62,7 @@ class DeviceTools(FortiGateTool):
         except Exception as e:
             return self._format_connection_test(device_id, False, str(e))
 
-    async def discover_vdoms(self, device_id: str) -> List[Content]:
+    async def discover_vdoms(self, device_id: str) -> list[Content]:
         """Discover VDOMs on a FortiGate device.
 
         Args:
@@ -78,10 +80,10 @@ class DeviceTools(FortiGateTool):
             return self._handle_error("discover VDOMs", device_id, e)
 
     async def add_device(self, device_id: str, host: str, port: int = 443,
-                   username: Optional[str] = None, password: Optional[str] = None,
-                   api_token: Optional[str] = None, vdom: str = "root",
+                   username: str | None = None, password: str | None = None,
+                   api_token: str | None = None, vdom: str = "root",
                    verify_ssl: bool = True, timeout: int = 30,
-                   os_version: Optional[str] = None) -> List[Content]:
+                   os_version: str | None = None) -> list[Content]:
         """Add a new FortiGate device.
 
         Args:
@@ -130,7 +132,7 @@ class DeviceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("add device", device_id, e)
 
-    async def remove_device(self, device_id: str) -> List[Content]:
+    async def remove_device(self, device_id: str) -> list[Content]:
         """Remove a FortiGate device.
 
         Args:

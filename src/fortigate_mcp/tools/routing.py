@@ -1,12 +1,15 @@
 """Routing management tools for FortiGate MCP."""
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from mcp.types import TextContent as Content
+
 from .base import FortiGateTool
+
 
 class RoutingTools(FortiGateTool):
     """Tools for FortiGate routing management."""
 
-    async def list_static_routes(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_static_routes(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List static routes."""
         try:
             self._validate_device_exists(device_id)
@@ -16,8 +19,8 @@ class RoutingTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list static routes", device_id, e)
 
-    async def create_static_route(self, device_id: str, dst: str, gateway: str, device: Optional[str] = None,
-                           vdom: Optional[str] = None) -> List[Content]:
+    async def create_static_route(self, device_id: str, dst: str, gateway: str, device: str | None = None,
+                           vdom: str | None = None) -> list[Content]:
         """Create static route."""
         try:
             self._validate_device_exists(device_id)
@@ -37,7 +40,7 @@ class RoutingTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create static route", device_id, e)
 
-    async def get_routing_table(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def get_routing_table(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """Get routing table."""
         try:
             self._validate_device_exists(device_id)
@@ -48,7 +51,7 @@ class RoutingTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("get routing table", device_id, e)
 
-    async def list_interfaces(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_interfaces(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List interfaces."""
         try:
             self._validate_device_exists(device_id)
@@ -58,7 +61,7 @@ class RoutingTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list interfaces", device_id, e)
 
-    async def get_interface_status(self, device_id: str, interface_name: str, vdom: Optional[str] = None) -> List[Content]:
+    async def get_interface_status(self, device_id: str, interface_name: str, vdom: str | None = None) -> list[Content]:
         """Get interface status."""
         try:
             self._validate_device_exists(device_id)
@@ -70,8 +73,8 @@ class RoutingTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("get interface status", device_id, e)
 
-    async def update_static_route(self, device_id: str, route_id: str, route_data: Dict[str, Any],
-                           vdom: Optional[str] = None) -> List[Content]:
+    async def update_static_route(self, device_id: str, route_id: str, route_data: dict[str, Any],
+                           vdom: str | None = None) -> list[Content]:
         """Update static route."""
         try:
             self._validate_device_exists(device_id)
@@ -83,7 +86,7 @@ class RoutingTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("update static route", device_id, e)
 
-    async def delete_static_route(self, device_id: str, route_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def delete_static_route(self, device_id: str, route_id: str, vdom: str | None = None) -> list[Content]:
         """Delete static route."""
         try:
             self._validate_device_exists(device_id)
@@ -95,7 +98,7 @@ class RoutingTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("delete static route", device_id, e)
 
-    async def get_static_route_detail(self, device_id: str, route_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def get_static_route_detail(self, device_id: str, route_id: str, vdom: str | None = None) -> list[Content]:
         """Get static route detail."""
         try:
             self._validate_device_exists(device_id)

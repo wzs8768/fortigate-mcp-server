@@ -12,10 +12,11 @@ and valid before the server starts operation.
 """
 import json
 import os
-from typing import Optional
+
 from .models import Config
 
-def load_config(config_path: Optional[str] = None) -> Config:
+
+def load_config(config_path: str | None = None) -> Config:
     """Load and validate configuration from JSON file.
 
     Performs the following steps:

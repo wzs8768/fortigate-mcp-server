@@ -166,4 +166,6 @@ skips = ["B101", "B601"]
 
 [tool.ruff.lint]
 # RUF002: Chinese docstrings use fullwidth punctuation (，：（）) — legitimate
-ignore = ["RUF002"]
+# BLE001: except Exception is valid in error-handling wrappers
+# TRY004: ValueError for invalid config is more descriptive than TypeError
+ignore = ["RUF002", "BLE001", "TRY004"]

@@ -1,12 +1,15 @@
 """Firewall policy management tools for FortiGate MCP."""
-from typing import Dict, Any, List, Optional
+from typing import Any
+
 from mcp.types import TextContent as Content
+
 from .base import FortiGateTool
+
 
 class FirewallTools(FortiGateTool):
     """Tools for FortiGate firewall policy management."""
 
-    async def list_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List firewall policies."""
         try:
             self._validate_device_exists(device_id)
@@ -16,8 +19,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list firewall policies", device_id, e)
 
-    def _validate_policy_data(self, policy_data: Dict[str, Any], operation: str,
-                              check_schedule: bool = True) -> Optional[str]:
+    def _validate_policy_data(self, policy_data: dict[str, Any], operation: str,
+                              check_schedule: bool = True) -> str | None:
         """Validate firewall/security policy data before forwarding to FortiGate.
 
         Returns an error message string if validation fails, None if OK.
@@ -63,8 +66,8 @@ class FirewallTools(FortiGateTool):
 
         return None  # All checks passed
 
-    async def create_policy(self, device_id: str, policy_data: Dict[str, Any],
-                     vdom: Optional[str] = None) -> List[Content]:
+    async def create_policy(self, device_id: str, policy_data: dict[str, Any],
+                     vdom: str | None = None) -> list[Content]:
         """Create firewall policy."""
         try:
             self._validate_device_exists(device_id)
@@ -83,7 +86,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("create firewall policy", device_id, e)
 
     async def update_policy(self, device_id: str, policy_id: str,
-                     policy_data: Dict[str, Any], vdom: Optional[str] = None) -> List[Content]:
+                     policy_data: dict[str, Any], vdom: str | None = None) -> list[Content]:
         """Update firewall policy."""
         try:
             self._validate_device_exists(device_id)
@@ -102,7 +105,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update firewall policy", device_id, e)
 
     async def get_policy_detail(self, device_id: str, policy_id: str,
-                         vdom: Optional[str] = None) -> List[Content]:
+                         vdom: str | None = None) -> list[Content]:
         """Get detailed information for a specific firewall policy."""
         try:
             self._validate_device_exists(device_id)
@@ -135,7 +138,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("get firewall policy detail", device_id, e)
 
     async def delete_policy(self, device_id: str, policy_id: str,
-                     vdom: Optional[str] = None) -> List[Content]:
+                     vdom: str | None = None) -> list[Content]:
         """Delete firewall policy."""
         try:
             self._validate_device_exists(device_id)
@@ -150,7 +153,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # Security Policy tools (NGFW policy-based mode)
     # ============================================================
-    async def list_security_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_security_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -159,8 +162,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list security policies", device_id, e)
 
-    async def create_security_policy(self, device_id: str, policy_data: Dict[str, Any],
-                              vdom: Optional[str] = None) -> List[Content]:
+    async def create_security_policy(self, device_id: str, policy_data: dict[str, Any],
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_data=policy_data)
@@ -176,8 +179,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create security policy", device_id, e)
 
-    async def update_security_policy(self, device_id: str, policy_id: str, policy_data: Dict[str, Any],
-                              vdom: Optional[str] = None) -> List[Content]:
+    async def update_security_policy(self, device_id: str, policy_id: str, policy_data: dict[str, Any],
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id, policy_data=policy_data)
@@ -193,7 +196,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update security policy", device_id, e)
 
     async def delete_security_policy(self, device_id: str, policy_id: str,
-                              vdom: Optional[str] = None) -> List[Content]:
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -204,7 +207,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("delete security policy", device_id, e)
 
     async def get_security_policy_detail(self, device_id: str, policy_id: str,
-                                  vdom: Optional[str] = None) -> List[Content]:
+                                  vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -217,7 +220,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # Proxy Policy tools
     # ============================================================
-    async def list_proxy_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_proxy_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -226,8 +229,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list proxy policies", device_id, e)
 
-    async def create_proxy_policy(self, device_id: str, policy_data: Dict[str, Any],
-                           vdom: Optional[str] = None) -> List[Content]:
+    async def create_proxy_policy(self, device_id: str, policy_data: dict[str, Any],
+                           vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_data=policy_data)
@@ -242,8 +245,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create proxy policy", device_id, e)
 
-    async def update_proxy_policy(self, device_id: str, policy_id: str, policy_data: Dict[str, Any],
-                           vdom: Optional[str] = None) -> List[Content]:
+    async def update_proxy_policy(self, device_id: str, policy_id: str, policy_data: dict[str, Any],
+                           vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id, policy_data=policy_data)
@@ -259,7 +262,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update proxy policy", device_id, e)
 
     async def delete_proxy_policy(self, device_id: str, policy_id: str,
-                           vdom: Optional[str] = None) -> List[Content]:
+                           vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -270,7 +273,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("delete proxy policy", device_id, e)
 
     async def get_proxy_policy_detail(self, device_id: str, policy_id: str,
-                               vdom: Optional[str] = None) -> List[Content]:
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -283,7 +286,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # Proxy Address tools
     # ============================================================
-    async def list_proxy_addresses(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_proxy_addresses(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -292,8 +295,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list proxy addresses", device_id, e)
 
-    async def create_proxy_address(self, device_id: str, data: Dict[str, Any],
-                            vdom: Optional[str] = None) -> List[Content]:
+    async def create_proxy_address(self, device_id: str, data: dict[str, Any],
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -303,8 +306,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create proxy address", device_id, e)
 
-    async def update_proxy_address(self, device_id: str, name: str, data: Dict[str, Any],
-                            vdom: Optional[str] = None) -> List[Content]:
+    async def update_proxy_address(self, device_id: str, name: str, data: dict[str, Any],
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -315,7 +318,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update proxy address", device_id, e)
 
     async def delete_proxy_address(self, device_id: str, name: str,
-                            vdom: Optional[str] = None) -> List[Content]:
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -325,7 +328,7 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("delete proxy address", device_id, e)
 
-    async def list_proxy_addrgrps(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_proxy_addrgrps(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -334,8 +337,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list proxy address groups", device_id, e)
 
-    async def create_proxy_addrgrp(self, device_id: str, data: Dict[str, Any],
-                            vdom: Optional[str] = None) -> List[Content]:
+    async def create_proxy_addrgrp(self, device_id: str, data: dict[str, Any],
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -345,8 +348,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create proxy address group", device_id, e)
 
-    async def update_proxy_addrgrp(self, device_id: str, name: str, data: Dict[str, Any],
-                            vdom: Optional[str] = None) -> List[Content]:
+    async def update_proxy_addrgrp(self, device_id: str, name: str, data: dict[str, Any],
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -357,7 +360,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update proxy address group", device_id, e)
 
     async def delete_proxy_addrgrp(self, device_id: str, name: str,
-                            vdom: Optional[str] = None) -> List[Content]:
+                            vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -370,7 +373,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # Shaping Policy tools
     # ============================================================
-    async def list_shaping_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_shaping_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -379,8 +382,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list shaping policies", device_id, e)
 
-    async def create_shaping_policy(self, device_id: str, policy_data: Dict[str, Any],
-                             vdom: Optional[str] = None) -> List[Content]:
+    async def create_shaping_policy(self, device_id: str, policy_data: dict[str, Any],
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_data=policy_data)
@@ -395,8 +398,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create shaping policy", device_id, e)
 
-    async def update_shaping_policy(self, device_id: str, policy_id: str, policy_data: Dict[str, Any],
-                             vdom: Optional[str] = None) -> List[Content]:
+    async def update_shaping_policy(self, device_id: str, policy_id: str, policy_data: dict[str, Any],
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id, policy_data=policy_data)
@@ -412,7 +415,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update shaping policy", device_id, e)
 
     async def delete_shaping_policy(self, device_id: str, policy_id: str,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -422,7 +425,7 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("delete shaping policy", device_id, e)
 
-    async def list_shaping_profiles(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_shaping_profiles(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -431,8 +434,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list shaping profiles", device_id, e)
 
-    async def create_shaping_profile(self, device_id: str, data: Dict[str, Any],
-                              vdom: Optional[str] = None) -> List[Content]:
+    async def create_shaping_profile(self, device_id: str, data: dict[str, Any],
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -442,8 +445,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create shaping profile", device_id, e)
 
-    async def update_shaping_profile(self, device_id: str, name: str, data: Dict[str, Any],
-                              vdom: Optional[str] = None) -> List[Content]:
+    async def update_shaping_profile(self, device_id: str, name: str, data: dict[str, Any],
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -454,7 +457,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update shaping profile", device_id, e)
 
     async def delete_shaping_profile(self, device_id: str, name: str,
-                              vdom: Optional[str] = None) -> List[Content]:
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -467,7 +470,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # DoS Policy tools
     # ============================================================
-    async def list_dos_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_dos_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -476,8 +479,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list DoS policies", device_id, e)
 
-    async def create_dos_policy(self, device_id: str, policy_data: Dict[str, Any],
-                         vdom: Optional[str] = None) -> List[Content]:
+    async def create_dos_policy(self, device_id: str, policy_data: dict[str, Any],
+                         vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_data=policy_data)
@@ -492,8 +495,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create DoS policy", device_id, e)
 
-    async def update_dos_policy(self, device_id: str, policy_id: str, policy_data: Dict[str, Any],
-                         vdom: Optional[str] = None) -> List[Content]:
+    async def update_dos_policy(self, device_id: str, policy_id: str, policy_data: dict[str, Any],
+                         vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id, policy_data=policy_data)
@@ -509,7 +512,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update DoS policy", device_id, e)
 
     async def delete_dos_policy(self, device_id: str, policy_id: str,
-                         vdom: Optional[str] = None) -> List[Content]:
+                         vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -522,7 +525,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # Local-in Policy tools
     # ============================================================
-    async def list_local_in_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_local_in_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -531,8 +534,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list local-in policies", device_id, e)
 
-    async def create_local_in_policy(self, device_id: str, policy_data: Dict[str, Any],
-                              vdom: Optional[str] = None) -> List[Content]:
+    async def create_local_in_policy(self, device_id: str, policy_data: dict[str, Any],
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_data=policy_data)
@@ -547,8 +550,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create local-in policy", device_id, e)
 
-    async def update_local_in_policy(self, device_id: str, policy_id: str, policy_data: Dict[str, Any],
-                              vdom: Optional[str] = None) -> List[Content]:
+    async def update_local_in_policy(self, device_id: str, policy_id: str, policy_data: dict[str, Any],
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id, policy_data=policy_data)
@@ -564,7 +567,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update local-in policy", device_id, e)
 
     async def delete_local_in_policy(self, device_id: str, policy_id: str,
-                              vdom: Optional[str] = None) -> List[Content]:
+                              vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -577,7 +580,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # Interface Policy tools
     # ============================================================
-    async def list_interface_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_interface_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -586,8 +589,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list interface policies", device_id, e)
 
-    async def create_interface_policy(self, device_id: str, policy_data: Dict[str, Any],
-                               vdom: Optional[str] = None) -> List[Content]:
+    async def create_interface_policy(self, device_id: str, policy_data: dict[str, Any],
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_data=policy_data)
@@ -602,8 +605,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create interface policy", device_id, e)
 
-    async def update_interface_policy(self, device_id: str, policy_id: str, policy_data: Dict[str, Any],
-                               vdom: Optional[str] = None) -> List[Content]:
+    async def update_interface_policy(self, device_id: str, policy_id: str, policy_data: dict[str, Any],
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id, policy_data=policy_data)
@@ -619,7 +622,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update interface policy", device_id, e)
 
     async def delete_interface_policy(self, device_id: str, policy_id: str,
-                               vdom: Optional[str] = None) -> List[Content]:
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -632,7 +635,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # Multicast Policy tools
     # ============================================================
-    async def list_multicast_policies(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_multicast_policies(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -641,8 +644,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list multicast policies", device_id, e)
 
-    async def create_multicast_policy(self, device_id: str, policy_data: Dict[str, Any],
-                               vdom: Optional[str] = None) -> List[Content]:
+    async def create_multicast_policy(self, device_id: str, policy_data: dict[str, Any],
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_data=policy_data)
@@ -657,8 +660,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create multicast policy", device_id, e)
 
-    async def update_multicast_policy(self, device_id: str, policy_id: str, policy_data: Dict[str, Any],
-                               vdom: Optional[str] = None) -> List[Content]:
+    async def update_multicast_policy(self, device_id: str, policy_id: str, policy_data: dict[str, Any],
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id, policy_data=policy_data)
@@ -674,7 +677,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update multicast policy", device_id, e)
 
     async def delete_multicast_policy(self, device_id: str, policy_id: str,
-                               vdom: Optional[str] = None) -> List[Content]:
+                               vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(policy_id=policy_id)
@@ -684,7 +687,7 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("delete multicast policy", device_id, e)
 
-    async def list_multicast_addresses(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_multicast_addresses(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -693,8 +696,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list multicast addresses", device_id, e)
 
-    async def create_multicast_address(self, device_id: str, data: Dict[str, Any],
-                                vdom: Optional[str] = None) -> List[Content]:
+    async def create_multicast_address(self, device_id: str, data: dict[str, Any],
+                                vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -704,8 +707,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create multicast address", device_id, e)
 
-    async def update_multicast_address(self, device_id: str, name: str, data: Dict[str, Any],
-                                vdom: Optional[str] = None) -> List[Content]:
+    async def update_multicast_address(self, device_id: str, name: str, data: dict[str, Any],
+                                vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -716,7 +719,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update multicast address", device_id, e)
 
     async def delete_multicast_address(self, device_id: str, name: str,
-                                vdom: Optional[str] = None) -> List[Content]:
+                                vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(name=name)
@@ -729,7 +732,7 @@ class FirewallTools(FortiGateTool):
     # ============================================================
     # Sniffer tools
     # ============================================================
-    async def list_sniffers(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_sniffers(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             api_client = self._get_device_api(device_id)
@@ -738,8 +741,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("list sniffers", device_id, e)
 
-    async def create_sniffer(self, device_id: str, data: Dict[str, Any],
-                      vdom: Optional[str] = None) -> List[Content]:
+    async def create_sniffer(self, device_id: str, data: dict[str, Any],
+                      vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(data=data)
@@ -749,8 +752,8 @@ class FirewallTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create sniffer", device_id, e)
 
-    async def update_sniffer(self, device_id: str, sniffer_id: str, data: Dict[str, Any],
-                      vdom: Optional[str] = None) -> List[Content]:
+    async def update_sniffer(self, device_id: str, sniffer_id: str, data: dict[str, Any],
+                      vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(sniffer_id=sniffer_id)
@@ -761,7 +764,7 @@ class FirewallTools(FortiGateTool):
             return self._handle_error("update sniffer", device_id, e)
 
     async def delete_sniffer(self, device_id: str, sniffer_id: str,
-                      vdom: Optional[str] = None) -> List[Content]:
+                      vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
             self._validate_required_params(sniffer_id=sniffer_id)

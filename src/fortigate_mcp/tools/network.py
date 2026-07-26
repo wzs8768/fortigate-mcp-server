@@ -1,12 +1,14 @@
 """Network object management tools for FortiGate MCP."""
-from typing import List, Optional
+
 from mcp.types import TextContent as Content
+
 from .base import FortiGateTool
+
 
 class NetworkTools(FortiGateTool):
     """Tools for FortiGate network object management."""
 
-    async def list_address_objects(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_address_objects(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List address objects."""
         try:
             self._validate_device_exists(device_id)
@@ -17,7 +19,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("list address objects", device_id, e)
 
     async def create_address_object(self, device_id: str, name: str, address_type: str, address: str,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         """Create address object (cmdb/firewall/address — usable in policies).
 
         Maps the address value to the correct FortiOS API field based on type:
@@ -65,7 +67,7 @@ class NetworkTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("create address object", device_id, e)
 
-    async def list_service_objects(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_service_objects(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List service objects."""
         try:
             self._validate_device_exists(device_id)
@@ -76,7 +78,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("list service objects", device_id, e)
 
     async def create_service_object(self, device_id: str, name: str, service_type: str, protocol: str,
-                             port: Optional[str] = None, vdom: Optional[str] = None) -> List[Content]:
+                             port: str | None = None, vdom: str | None = None) -> list[Content]:
         """Create service object."""
         try:
             self._validate_device_exists(device_id)
@@ -116,7 +118,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("create service object", device_id, e)
 
     async def update_address_object(self, device_id: str, name: str, address_data: dict,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         """Update address object."""
         try:
             self._validate_device_exists(device_id)
@@ -128,7 +130,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("update address object", device_id, e)
 
     async def delete_address_object(self, device_id: str, name: str,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         """Delete address object."""
         try:
             self._validate_device_exists(device_id)
@@ -140,7 +142,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("delete address object", device_id, e)
 
     async def update_service_object(self, device_id: str, name: str, service_data: dict,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         """Update service object."""
         try:
             self._validate_device_exists(device_id)
@@ -152,7 +154,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("update service object", device_id, e)
 
     async def delete_service_object(self, device_id: str, name: str,
-                             vdom: Optional[str] = None) -> List[Content]:
+                             vdom: str | None = None) -> list[Content]:
         """Delete service object."""
         try:
             self._validate_device_exists(device_id)
@@ -166,7 +168,7 @@ class NetworkTools(FortiGateTool):
     # ============================================================
     # Address Group tools
     # ============================================================
-    async def list_addrgrps(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_addrgrps(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List address groups."""
         try:
             self._validate_device_exists(device_id)
@@ -177,7 +179,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("list address groups", device_id, e)
 
     async def create_addrgrp(self, device_id: str, addrgrp_data: dict,
-                      vdom: Optional[str] = None) -> List[Content]:
+                      vdom: str | None = None) -> list[Content]:
         """Create address group."""
         try:
             self._validate_device_exists(device_id)
@@ -189,7 +191,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("create address group", device_id, e)
 
     async def update_addrgrp(self, device_id: str, name: str, addrgrp_data: dict,
-                      vdom: Optional[str] = None) -> List[Content]:
+                      vdom: str | None = None) -> list[Content]:
         """Update address group."""
         try:
             self._validate_device_exists(device_id)
@@ -201,7 +203,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("update address group", device_id, e)
 
     async def delete_addrgrp(self, device_id: str, name: str,
-                      vdom: Optional[str] = None) -> List[Content]:
+                      vdom: str | None = None) -> list[Content]:
         """Delete address group."""
         try:
             self._validate_device_exists(device_id)
@@ -213,7 +215,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("delete address group", device_id, e)
 
     async def get_addrgrp_detail(self, device_id: str, name: str,
-                          vdom: Optional[str] = None) -> List[Content]:
+                          vdom: str | None = None) -> list[Content]:
         """Get address group detail."""
         try:
             self._validate_device_exists(device_id)
@@ -227,7 +229,7 @@ class NetworkTools(FortiGateTool):
     # ============================================================
     # Service Group tools
     # ============================================================
-    async def list_service_groups(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_service_groups(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List service groups."""
         try:
             self._validate_device_exists(device_id)
@@ -238,7 +240,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("list service groups", device_id, e)
 
     async def create_service_group(self, device_id: str, service_group_data: dict,
-                            vdom: Optional[str] = None) -> List[Content]:
+                            vdom: str | None = None) -> list[Content]:
         """Create service group."""
         try:
             self._validate_device_exists(device_id)
@@ -250,7 +252,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("create service group", device_id, e)
 
     async def update_service_group(self, device_id: str, name: str, service_group_data: dict,
-                            vdom: Optional[str] = None) -> List[Content]:
+                            vdom: str | None = None) -> list[Content]:
         """Update service group."""
         try:
             self._validate_device_exists(device_id)
@@ -262,7 +264,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("update service group", device_id, e)
 
     async def delete_service_group(self, device_id: str, name: str,
-                            vdom: Optional[str] = None) -> List[Content]:
+                            vdom: str | None = None) -> list[Content]:
         """Delete service group."""
         try:
             self._validate_device_exists(device_id)
@@ -276,7 +278,7 @@ class NetworkTools(FortiGateTool):
     # ============================================================
     # Wildcard FQDN tools
     # ============================================================
-    async def list_wildcard_fqdn_custom(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_wildcard_fqdn_custom(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List wildcard FQDN custom entries."""
         try:
             self._validate_device_exists(device_id)
@@ -287,7 +289,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("list wildcard FQDN", device_id, e)
 
     async def create_wildcard_fqdn_custom(self, device_id: str, data: dict,
-                                   vdom: Optional[str] = None) -> List[Content]:
+                                   vdom: str | None = None) -> list[Content]:
         """Create wildcard FQDN custom entry."""
         try:
             self._validate_device_exists(device_id)
@@ -299,7 +301,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("create wildcard FQDN", device_id, e)
 
     async def update_wildcard_fqdn_custom(self, device_id: str, name: str, data: dict,
-                                   vdom: Optional[str] = None) -> List[Content]:
+                                   vdom: str | None = None) -> list[Content]:
         """Update wildcard FQDN custom entry."""
         try:
             self._validate_device_exists(device_id)
@@ -311,7 +313,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("update wildcard FQDN", device_id, e)
 
     async def delete_wildcard_fqdn_custom(self, device_id: str, name: str,
-                                   vdom: Optional[str] = None) -> List[Content]:
+                                   vdom: str | None = None) -> list[Content]:
         """Delete wildcard FQDN custom entry."""
         try:
             self._validate_device_exists(device_id)
@@ -322,7 +324,7 @@ class NetworkTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("delete wildcard FQDN", device_id, e)
 
-    async def list_wildcard_fqdn_group(self, device_id: str, vdom: Optional[str] = None) -> List[Content]:
+    async def list_wildcard_fqdn_group(self, device_id: str, vdom: str | None = None) -> list[Content]:
         """List wildcard FQDN groups."""
         try:
             self._validate_device_exists(device_id)
@@ -333,7 +335,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("list wildcard FQDN groups", device_id, e)
 
     async def create_wildcard_fqdn_group(self, device_id: str, data: dict,
-                                  vdom: Optional[str] = None) -> List[Content]:
+                                  vdom: str | None = None) -> list[Content]:
         """Create wildcard FQDN group."""
         try:
             self._validate_device_exists(device_id)
@@ -345,7 +347,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("create wildcard FQDN group", device_id, e)
 
     async def update_wildcard_fqdn_group(self, device_id: str, name: str, data: dict,
-                                  vdom: Optional[str] = None) -> List[Content]:
+                                  vdom: str | None = None) -> list[Content]:
         """Update wildcard FQDN group."""
         try:
             self._validate_device_exists(device_id)
@@ -357,7 +359,7 @@ class NetworkTools(FortiGateTool):
             return self._handle_error("update wildcard FQDN group", device_id, e)
 
     async def delete_wildcard_fqdn_group(self, device_id: str, name: str,
-                                  vdom: Optional[str] = None) -> List[Content]:
+                                  vdom: str | None = None) -> list[Content]:
         """Delete wildcard FQDN group."""
         try:
             self._validate_device_exists(device_id)

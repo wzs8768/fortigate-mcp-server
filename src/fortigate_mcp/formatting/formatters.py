@@ -6,9 +6,12 @@ into structured MCP content. It acts as a bridge between raw API data
 and user-friendly formatted output.
 """
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from mcp.types import TextContent as Content
+
 from .templates import FortiGateTemplates
+
 
 class FortiGateFormatters:
     """Formatter collection for FortiGate resources.
@@ -18,7 +21,7 @@ class FortiGateFormatters:
     """
     
     @staticmethod
-    def format_devices(devices_data: Dict[str, Dict[str, Any]]) -> List[Content]:
+    def format_devices(devices_data: dict[str, dict[str, Any]]) -> list[Content]:
         """Format device list response.
         
         Args:
@@ -31,7 +34,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_device_status(device_id: str, status_data: Dict[str, Any]) -> List[Content]:
+    def format_device_status(device_id: str, status_data: dict[str, Any]) -> list[Content]:
         """Format device status response.
         
         Args:
@@ -45,7 +48,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_firewall_policies(policies_data: Dict[str, Any]) -> List[Content]:
+    def format_firewall_policies(policies_data: dict[str, Any]) -> list[Content]:
         """Format firewall policies response.
         
         Args:
@@ -58,9 +61,9 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_firewall_policy_detail(policy_data: Dict[str, Any], device_id: str,
-                                    address_objects: Optional[Dict[str, Any]] = None,
-                                    service_objects: Optional[Dict[str, Any]] = None) -> List[Content]:
+    def format_firewall_policy_detail(policy_data: dict[str, Any], device_id: str,
+                                    address_objects: dict[str, Any] | None = None,
+                                    service_objects: dict[str, Any] | None = None) -> list[Content]:
         """Format detailed firewall policy response.
         
         Args:
@@ -78,7 +81,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_address_objects(addresses_data: Dict[str, Any]) -> List[Content]:
+    def format_address_objects(addresses_data: dict[str, Any]) -> list[Content]:
         """Format address objects response.
         
         Args:
@@ -91,7 +94,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_service_objects(services_data: Dict[str, Any]) -> List[Content]:
+    def format_service_objects(services_data: dict[str, Any]) -> list[Content]:
         """Format service objects response.
         
         Args:
@@ -104,7 +107,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_virtual_ips(vips_data: Dict[str, Any]) -> List[Content]:
+    def format_virtual_ips(vips_data: dict[str, Any]) -> list[Content]:
         """Format virtual IPs response.
         
         Args:
@@ -117,7 +120,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_virtual_ip_detail(vip_data: Dict[str, Any]) -> List[Content]:
+    def format_virtual_ip_detail(vip_data: dict[str, Any]) -> list[Content]:
         """Format virtual IP detail response.
         
         Args:
@@ -130,7 +133,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_routing_table(routing_data: Dict[str, Any]) -> List[Content]:
+    def format_routing_table(routing_data: dict[str, Any]) -> list[Content]:
         """Format routing table response.
         
         Args:
@@ -143,7 +146,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_static_routes(routes_data: Dict[str, Any]) -> List[Content]:
+    def format_static_routes(routes_data: dict[str, Any]) -> list[Content]:
         """Format static routes response.
         
         Args:
@@ -156,7 +159,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_interfaces(interfaces_data: Dict[str, Any]) -> List[Content]:
+    def format_interfaces(interfaces_data: dict[str, Any]) -> list[Content]:
         """Format interfaces response.
         
         Args:
@@ -169,7 +172,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_vdoms(vdoms_data: Dict[str, Any]) -> List[Content]:
+    def format_vdoms(vdoms_data: dict[str, Any]) -> list[Content]:
         """Format VDOMs response.
         
         Args:
@@ -183,8 +186,8 @@ class FortiGateFormatters:
     
     @staticmethod
     def format_operation_result(operation: str, device_id: str, success: bool,
-                              details: Optional[str] = None, 
-                              error: Optional[str] = None) -> List[Content]:
+                              details: str | None = None, 
+                              error: str | None = None) -> list[Content]:
         """Format operation result.
         
         Args:
@@ -203,7 +206,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_health_status(status: str, details: Dict[str, Any]) -> List[Content]:
+    def format_health_status(status: str, details: dict[str, Any]) -> list[Content]:
         """Format health check status.
         
         Args:
@@ -217,7 +220,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_json_response(data: Any, title: Optional[str] = None) -> List[Content]:
+    def format_json_response(data: Any, title: str | None = None) -> list[Content]:
         """Format JSON response data.
         
         Args:
@@ -235,7 +238,7 @@ class FortiGateFormatters:
         return [Content(type="text", text=formatted_text)]
     
     @staticmethod
-    def format_error_response(operation: str, device_id: str, error: str) -> List[Content]:
+    def format_error_response(operation: str, device_id: str, error: str) -> list[Content]:
         """Format error response.
         
         Args:
@@ -255,7 +258,7 @@ class FortiGateFormatters:
         return FortiGateFormatters.format_json_response(error_data, "Error")
 
     @staticmethod
-    def format_connection_test(device_id: str, success: bool, error: Optional[str] = None) -> List[Content]:
+    def format_connection_test(device_id: str, success: bool, error: str | None = None) -> list[Content]:
         """Format connection test result.
         
         Args:

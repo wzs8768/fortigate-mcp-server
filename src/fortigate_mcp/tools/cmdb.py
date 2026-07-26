@@ -1,7 +1,9 @@
 """Generic CMDB tools for FortiGate MCP — covers ALL FortiOS 8.0 CMDB endpoints."""
 
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from mcp.types import TextContent as Content
+
 from .base import FortiGateTool
 
 
@@ -10,8 +12,8 @@ class CmdbTools(FortiGateTool):
 
     async def cmdb_list(
         self, device_id: str, path: str,
-        vdom: Optional[str] = None
-    ) -> List[Content]:
+        vdom: str | None = None
+    ) -> list[Content]:
         """List resources at a CMDB path (GET collection).
 
         Args:
@@ -28,9 +30,9 @@ class CmdbTools(FortiGateTool):
             return self._handle_error(f"cmdb_list {path}", device_id, e)
 
     async def cmdb_get(
-        self, device_id: str, path: str, name: Optional[str] = None,
-        vdom: Optional[str] = None
-    ) -> List[Content]:
+        self, device_id: str, path: str, name: str | None = None,
+        vdom: str | None = None
+    ) -> list[Content]:
         """Get a single resource by name/ID, or a singleton object (omit name).
 
         For singleton objects like system/global, system/dns, system/ntp,
@@ -52,9 +54,9 @@ class CmdbTools(FortiGateTool):
             return self._handle_error(f"cmdb_get {label}", device_id, e)
 
     async def cmdb_create(
-        self, device_id: str, path: str, data: Dict[str, Any],
-        vdom: Optional[str] = None
-    ) -> List[Content]:
+        self, device_id: str, path: str, data: dict[str, Any],
+        vdom: str | None = None
+    ) -> list[Content]:
         """Create a new resource (POST).
 
         Args:
@@ -86,9 +88,9 @@ class CmdbTools(FortiGateTool):
             return self._handle_error(f"cmdb_create {path}", device_id, e)
 
     async def cmdb_update(
-        self, device_id: str, path: str, data: Dict[str, Any],
-        name: Optional[str] = None, vdom: Optional[str] = None
-    ) -> List[Content]:
+        self, device_id: str, path: str, data: dict[str, Any],
+        name: str | None = None, vdom: str | None = None
+    ) -> list[Content]:
         """Update a resource (PUT). Omit name for singleton objects.
 
         For singleton objects like system/global, omit name and the request goes
@@ -114,8 +116,8 @@ class CmdbTools(FortiGateTool):
 
     async def cmdb_delete(
         self, device_id: str, path: str,
-        name: Optional[str] = None, vdom: Optional[str] = None
-    ) -> List[Content]:
+        name: str | None = None, vdom: str | None = None
+    ) -> list[Content]:
         """Delete a resource by name/ID (DELETE with key).
 
         Args:

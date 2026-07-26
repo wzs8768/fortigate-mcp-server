@@ -8,10 +8,10 @@ supporting HTTP transport for web-based integrations and external access.
 import asyncio
 import json
 import os
-import sys
 import signal
-from typing import Optional, Dict, Any
+import sys
 from datetime import datetime
+from typing import Any
 
 try:
     from fastmcp import FastMCP
@@ -24,33 +24,49 @@ except ImportError:
         FASTMCP_AVAILABLE = False
 
 
+from .auth_middleware import make_auth_middleware
 from .config.loader import load_config
-from .core.logging import setup_logging
 from .core.fortigate import FortiGateManager
+from .core.logging import setup_logging
+from .tools.cmdb import CmdbTools
+from .tools.definitions import (
+    ADD_DEVICE_DESC,
+    CREATE_ADDRESS_OBJECT_DESC,
+    CREATE_FIREWALL_POLICY_DESC,
+    CREATE_SERVICE_OBJECT_DESC,
+    CREATE_STATIC_ROUTE_DESC,
+    CREATE_VIRTUAL_IP_DESC,
+    DELETE_FIREWALL_POLICY_DESC,
+    DELETE_STATIC_ROUTE_DESC,
+    DELETE_VIRTUAL_IP_DESC,
+    DISCOVER_VDOMS_DESC,
+    GET_DEVICE_STATUS_DESC,
+    GET_INTERFACE_STATUS_DESC,
+    GET_ROUTING_TABLE_DESC,
+    GET_STATIC_ROUTE_DETAIL_DESC,
+    GET_VIRTUAL_IP_DETAIL_DESC,
+    LIST_ADDRESS_OBJECTS_DESC,
+    LIST_DEVICES_DESC,
+    LIST_FIREWALL_POLICIES_DESC,
+    LIST_INTERFACES_DESC,
+    LIST_SERVICE_OBJECTS_DESC,
+    LIST_STATIC_ROUTES_DESC,
+    LIST_VIRTUAL_IPS_DESC,
+    REMOVE_DEVICE_DESC,
+    TEST_DEVICE_CONNECTION_DESC,
+    UPDATE_FIREWALL_POLICY_DESC,
+    UPDATE_STATIC_ROUTE_DESC,
+    UPDATE_VIRTUAL_IP_DESC,
+)
 from .tools.device import DeviceTools
 from .tools.firewall import FirewallTools
 from .tools.network import NetworkTools
-from .auth_middleware import make_auth_middleware
-from .tools.routing import RoutingTools
-from .tools.virtual_ip import VirtualIPTools
-from .tools.schedules import ScheduleTools
 from .tools.resources import ResourceTools
+from .tools.routing import RoutingTools
+from .tools.schedules import ScheduleTools
 from .tools.security import SecurityTools
-from .tools.cmdb import CmdbTools
-from .tools.definitions import (
-    LIST_DEVICES_DESC, GET_DEVICE_STATUS_DESC, TEST_DEVICE_CONNECTION_DESC,
-    ADD_DEVICE_DESC, REMOVE_DEVICE_DESC, DISCOVER_VDOMS_DESC,
-    LIST_FIREWALL_POLICIES_DESC, CREATE_FIREWALL_POLICY_DESC,
-    UPDATE_FIREWALL_POLICY_DESC, DELETE_FIREWALL_POLICY_DESC,
-    LIST_ADDRESS_OBJECTS_DESC, CREATE_ADDRESS_OBJECT_DESC,
-    LIST_SERVICE_OBJECTS_DESC, CREATE_SERVICE_OBJECT_DESC,
-    LIST_STATIC_ROUTES_DESC, CREATE_STATIC_ROUTE_DESC,
-    GET_ROUTING_TABLE_DESC, LIST_INTERFACES_DESC, GET_INTERFACE_STATUS_DESC,
-    UPDATE_STATIC_ROUTE_DESC, DELETE_STATIC_ROUTE_DESC,
-    GET_STATIC_ROUTE_DETAIL_DESC,
-    LIST_VIRTUAL_IPS_DESC, CREATE_VIRTUAL_IP_DESC, UPDATE_VIRTUAL_IP_DESC,
-    GET_VIRTUAL_IP_DETAIL_DESC, DELETE_VIRTUAL_IP_DESC,
-)
+from .tools.virtual_ip import VirtualIPTools
+
 
 class FortiGateMCPHTTPServer:
     """
@@ -65,12 +81,12 @@ class FortiGateMCPHTTPServer:
     """
 
     def __init__(self,
-                 config_path: Optional[str] = None,
+                 config_path: str | None = None,
                  host: str = "0.0.0.0",
                  port: int = 8814,
                  path: str = "/fortigate-mcp",
-                 ssl_cert: Optional[str] = None,
-                 ssl_key: Optional[str] = None,
+                 ssl_cert: str | None = None,
+                 ssl_key: str | None = None,
                  transport: str = "streamable-http",
                  sse_path: str = "/fortigate-mcp-sse"):
         """
@@ -166,9 +182,9 @@ class FortiGateMCPHTTPServer:
             device_id: str,
             host: str,
             port: int = 443,
-            username: Optional[str] = None,
-            password: Optional[str] = None,
-            api_token: Optional[str] = None,
+            username: str | None = None,
+            password: str | None = None,
+            api_token: str | None = None,
             vdom: str = "root",
             verify_ssl: bool = True,
             timeout: int = 30
@@ -187,7 +203,7 @@ class FortiGateMCPHTTPServer:
         @self.mcp.tool(description=LIST_FIREWALL_POLICIES_DESC)
         async def list_firewall_policies(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.list_policies(device_id, vdom)
 
@@ -195,7 +211,7 @@ class FortiGateMCPHTTPServer:
         async def create_firewall_policy(
             device_id: str,
             policy_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.create_policy(device_id, policy_data, vdom)
 
@@ -204,7 +220,7 @@ class FortiGateMCPHTTPServer:
             device_id: str,
             policy_id: str,
             policy_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.update_policy(device_id, policy_id, policy_data, vdom)
 
@@ -212,7 +228,7 @@ class FortiGateMCPHTTPServer:
         async def get_firewall_policy_detail(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.get_policy_detail(device_id, policy_id, vdom)
 
@@ -220,7 +236,7 @@ class FortiGateMCPHTTPServer:
         async def delete_firewall_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.delete_policy(device_id, policy_id, vdom)
 
@@ -228,7 +244,7 @@ class FortiGateMCPHTTPServer:
         @self.mcp.tool(description=LIST_ADDRESS_OBJECTS_DESC)
         async def list_address_objects(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.list_address_objects(device_id, vdom)
 
@@ -238,14 +254,14 @@ class FortiGateMCPHTTPServer:
             name: str,
             address_type: str,
             address: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.create_address_object(device_id, name, address_type, address, vdom)
 
         @self.mcp.tool(description=LIST_SERVICE_OBJECTS_DESC)
         async def list_service_objects(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.list_service_objects(device_id, vdom)
 
@@ -255,8 +271,8 @@ class FortiGateMCPHTTPServer:
             name: str,
             service_type: str,
             protocol: str,
-            port: Optional[str] = None,
-            vdom: Optional[str] = None
+            port: str | None = None,
+            vdom: str | None = None
         ):
             return await self.network_tools.create_service_object(device_id, name, service_type, protocol, port, vdom)
 
@@ -264,7 +280,7 @@ class FortiGateMCPHTTPServer:
         @self.mcp.tool(description=LIST_STATIC_ROUTES_DESC)
         async def list_static_routes(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.routing_tools.list_static_routes(device_id, vdom)
 
@@ -273,22 +289,22 @@ class FortiGateMCPHTTPServer:
             device_id: str,
             dst: str,
             gateway: str,
-            device: Optional[str] = None,
-            vdom: Optional[str] = None
+            device: str | None = None,
+            vdom: str | None = None
         ):
             return await self.routing_tools.create_static_route(device_id, dst, gateway, device, vdom)
 
         @self.mcp.tool(description=GET_ROUTING_TABLE_DESC)
         async def get_routing_table(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.routing_tools.get_routing_table(device_id, vdom)
 
         @self.mcp.tool(description=LIST_INTERFACES_DESC)
         async def list_interfaces(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.routing_tools.list_interfaces(device_id, vdom)
 
@@ -296,7 +312,7 @@ class FortiGateMCPHTTPServer:
         async def get_interface_status(
             device_id: str,
             interface_name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.routing_tools.get_interface_status(device_id, interface_name, vdom)
 
@@ -305,7 +321,7 @@ class FortiGateMCPHTTPServer:
             device_id: str,
             route_id: str,
             route_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.routing_tools.update_static_route(device_id, route_id, route_data, vdom)
 
@@ -313,7 +329,7 @@ class FortiGateMCPHTTPServer:
         async def delete_static_route(
             device_id: str,
             route_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.routing_tools.delete_static_route(device_id, route_id, vdom)
 
@@ -321,7 +337,7 @@ class FortiGateMCPHTTPServer:
         async def get_static_route_detail(
             device_id: str,
             route_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.routing_tools.get_static_route_detail(device_id, route_id, vdom)
 
@@ -329,7 +345,7 @@ class FortiGateMCPHTTPServer:
         @self.mcp.tool(description=LIST_VIRTUAL_IPS_DESC)
         async def list_virtual_ips(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.virtual_ip_tools.list_virtual_ips(device_id, vdom)
 
@@ -342,9 +358,9 @@ class FortiGateMCPHTTPServer:
             extintf: str,
             portforward: str = "disable",
             protocol: str = "tcp",
-            extport: Optional[str] = None,
-            mappedport: Optional[str] = None,
-            vdom: Optional[str] = None
+            extport: str | None = None,
+            mappedport: str | None = None,
+            vdom: str | None = None
         ):
             return await self.virtual_ip_tools.create_virtual_ip(
                 device_id, name, extip, mappedip, extintf, portforward, protocol, extport, mappedport, vdom
@@ -355,7 +371,7 @@ class FortiGateMCPHTTPServer:
             device_id: str,
             name: str,
             vip_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.virtual_ip_tools.update_virtual_ip(device_id, name, vip_data, vdom)
 
@@ -363,7 +379,7 @@ class FortiGateMCPHTTPServer:
         async def get_virtual_ip_detail(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.virtual_ip_tools.get_virtual_ip_detail(device_id, name, vdom)
 
@@ -371,7 +387,7 @@ class FortiGateMCPHTTPServer:
         async def delete_virtual_ip(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.virtual_ip_tools.delete_virtual_ip(device_id, name, vdom)
 
@@ -397,7 +413,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             address_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.update_address_object(device_id, name, address_data, vdom)
 
@@ -405,7 +421,7 @@ Returns: Update confirmation.""")
         async def delete_address_object(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.delete_address_object(device_id, name, vdom)
 
@@ -423,7 +439,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             service_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.update_service_object(device_id, name, service_data, vdom)
 
@@ -431,7 +447,7 @@ Returns: Update confirmation.""")
         async def delete_service_object(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.delete_service_object(device_id, name, vdom)
 
@@ -441,7 +457,7 @@ Returns: Update confirmation.""")
         @self.mcp.tool(description="List all address groups")
         async def list_addrgrps(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.list_addrgrps(device_id, vdom)
 
@@ -458,7 +474,7 @@ Returns: Creation confirmation with group details.""")
         async def create_addrgrp(
             device_id: str,
             addrgrp_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.create_addrgrp(device_id, addrgrp_data, vdom)
 
@@ -476,7 +492,7 @@ Returns: Update confirmation with new group details.""")
             device_id: str,
             name: str,
             addrgrp_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.update_addrgrp(device_id, name, addrgrp_data, vdom)
 
@@ -484,7 +500,7 @@ Returns: Update confirmation with new group details.""")
         async def delete_addrgrp(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.delete_addrgrp(device_id, name, vdom)
 
@@ -492,7 +508,7 @@ Returns: Update confirmation with new group details.""")
         async def get_addrgrp_detail(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.get_addrgrp_detail(device_id, name, vdom)
 
@@ -502,7 +518,7 @@ Returns: Update confirmation with new group details.""")
         @self.mcp.tool(description="List all service groups")
         async def list_service_groups(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.list_service_groups(device_id, vdom)
 
@@ -517,7 +533,7 @@ Returns: Creation confirmation.""")
         async def create_service_group(
             device_id: str,
             service_group_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.create_service_group(device_id, service_group_data, vdom)
 
@@ -533,7 +549,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             service_group_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.update_service_group(device_id, name, service_group_data, vdom)
 
@@ -541,7 +557,7 @@ Returns: Update confirmation.""")
         async def delete_service_group(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.delete_service_group(device_id, name, vdom)
 
@@ -551,7 +567,7 @@ Returns: Update confirmation.""")
         @self.mcp.tool(description="List all onetime schedules")
         async def list_schedule_onetime(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.list_schedule_onetime(device_id, vdom)
 
@@ -566,7 +582,7 @@ Returns: Creation confirmation.""")
         async def create_schedule_onetime(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.create_schedule_onetime(device_id, data, vdom)
 
@@ -581,7 +597,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.update_schedule_onetime(device_id, name, data, vdom)
 
@@ -589,14 +605,14 @@ Returns: Update confirmation.""")
         async def delete_schedule_onetime(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.delete_schedule_onetime(device_id, name, vdom)
 
         @self.mcp.tool(description="List all recurring schedules")
         async def list_schedule_recurring(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.list_schedule_recurring(device_id, vdom)
 
@@ -614,7 +630,7 @@ Returns: Creation confirmation.""")
         async def create_schedule_recurring(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.create_schedule_recurring(device_id, data, vdom)
 
@@ -630,7 +646,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.update_schedule_recurring(device_id, name, data, vdom)
 
@@ -638,14 +654,14 @@ Returns: Update confirmation.""")
         async def delete_schedule_recurring(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.delete_schedule_recurring(device_id, name, vdom)
 
         @self.mcp.tool(description="List all schedule groups")
         async def list_schedule_group(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.list_schedule_group(device_id, vdom)
 
@@ -659,7 +675,7 @@ Returns: Creation confirmation.""")
         async def create_schedule_group(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.create_schedule_group(device_id, data, vdom)
 
@@ -674,7 +690,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.update_schedule_group(device_id, name, data, vdom)
 
@@ -682,7 +698,7 @@ Returns: Update confirmation.""")
         async def delete_schedule_group(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.schedule_tools.delete_schedule_group(device_id, name, vdom)
 
@@ -692,7 +708,7 @@ Returns: Update confirmation.""")
         @self.mcp.tool(description="List all IP pools")
         async def list_ippools(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.list_ippools(device_id, vdom)
 
@@ -708,7 +724,7 @@ Returns: Creation confirmation.""")
         async def create_ippool(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.create_ippool(device_id, data, vdom)
 
@@ -723,7 +739,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.update_ippool(device_id, name, data, vdom)
 
@@ -731,14 +747,14 @@ Returns: Update confirmation.""")
         async def delete_ippool(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.delete_ippool(device_id, name, vdom)
 
         @self.mcp.tool(description="List all VIP groups")
         async def list_vipgrps(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.list_vipgrps(device_id, vdom)
 
@@ -753,7 +769,7 @@ Returns: Creation confirmation.""")
         async def create_vipgrp(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.create_vipgrp(device_id, data, vdom)
 
@@ -768,7 +784,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.update_vipgrp(device_id, name, data, vdom)
 
@@ -776,21 +792,21 @@ Returns: Update confirmation.""")
         async def delete_vipgrp(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.delete_vipgrp(device_id, name, vdom)
 
         @self.mcp.tool(description="List all traffic shapers")
         async def list_traffic_shapers(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.list_traffic_shapers(device_id, vdom)
 
         @self.mcp.tool(description="List all central SNAT maps")
         async def list_central_snat_maps(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.resource_tools.list_central_snat_maps(device_id, vdom)
 
@@ -800,7 +816,7 @@ Returns: Update confirmation.""")
         @self.mcp.tool(description="List all NGFW security policies")
         async def list_security_policies(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.list_security_policies(device_id, vdom)
 
@@ -832,14 +848,14 @@ any security profile — without it profiles are silently ignored.""")
         async def create_security_policy(
             device_id: str,
             policy_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.create_security_policy(device_id, policy_data, vdom)
 
         @self.mcp.tool(description="List all proxy policies")
         async def list_proxy_policies(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.list_proxy_policies(device_id, vdom)
 
@@ -847,28 +863,28 @@ any security profile — without it profiles are silently ignored.""")
         async def create_proxy_policy(
             device_id: str,
             policy_data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.create_proxy_policy(device_id, policy_data, vdom)
 
         @self.mcp.tool(description="List all proxy addresses")
         async def list_proxy_addresses(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.list_proxy_addresses(device_id, vdom)
 
         @self.mcp.tool(description="List all DoS policies")
         async def list_dos_policies(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.list_dos_policies(device_id, vdom)
 
         @self.mcp.tool(description="List all local-in policies")
         async def list_local_in_policies(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.firewall_tools.list_local_in_policies(device_id, vdom)
 
@@ -878,7 +894,7 @@ any security profile — without it profiles are silently ignored.""")
         @self.mcp.tool(description="List all wildcard FQDN entries")
         async def list_wildcard_fqdn_custom(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.list_wildcard_fqdn_custom(device_id, vdom)
 
@@ -893,7 +909,7 @@ Returns: Creation confirmation.""")
         async def create_wildcard_fqdn_custom(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.create_wildcard_fqdn_custom(device_id, data, vdom)
 
@@ -909,7 +925,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.update_wildcard_fqdn_custom(device_id, name, data, vdom)
 
@@ -917,14 +933,14 @@ Returns: Update confirmation.""")
         async def delete_wildcard_fqdn_custom(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.delete_wildcard_fqdn_custom(device_id, name, vdom)
 
         @self.mcp.tool(description="List all wildcard FQDN groups")
         async def list_wildcard_fqdn_group(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.list_wildcard_fqdn_group(device_id, vdom)
 
@@ -939,7 +955,7 @@ Returns: Creation confirmation.""")
         async def create_wildcard_fqdn_group(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.create_wildcard_fqdn_group(device_id, data, vdom)
 
@@ -955,7 +971,7 @@ Returns: Update confirmation.""")
             device_id: str,
             name: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.update_wildcard_fqdn_group(device_id, name, data, vdom)
 
@@ -963,7 +979,7 @@ Returns: Update confirmation.""")
         async def delete_wildcard_fqdn_group(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.network_tools.delete_wildcard_fqdn_group(device_id, name, vdom)
 
@@ -973,28 +989,28 @@ Returns: Update confirmation.""")
         @self.mcp.tool(description="List all SSL/SSH inspection profiles")
         async def list_ssl_ssh_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_ssl_ssh_profiles(device_id, vdom)
 
         @self.mcp.tool(description="List all IPS sensors")
         async def list_ips_sensors(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_ips_sensors(device_id, vdom)
 
         @self.mcp.tool(description="List all profile groups")
         async def list_profile_groups(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_profile_groups(device_id, vdom)
 
         @self.mcp.tool(description="Get firewall global settings")
         async def get_firewall_global(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_firewall_global(device_id, vdom)
 
@@ -1011,14 +1027,14 @@ Returns: Update confirmation.""")
         async def update_firewall_global(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.update_firewall_global(device_id, data, vdom)
 
         @self.mcp.tool(description="Get log settings")
         async def get_log_setting(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_log_setting(device_id, vdom)
 
@@ -1028,7 +1044,7 @@ Returns: Update confirmation.""")
         @self.mcp.tool(description="List all authentication rules")
         async def list_auth_rules(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_auth_rules(device_id, vdom)
 
@@ -1045,7 +1061,7 @@ Returns: Creation confirmation.""")
         async def create_auth_rule(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.create_auth_rule(device_id, data, vdom)
 
@@ -1053,21 +1069,21 @@ Returns: Creation confirmation.""")
         async def delete_auth_rule(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.delete_auth_rule(device_id, name, vdom)
 
         @self.mcp.tool(description="List all authentication schemes")
         async def list_auth_schemes(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_auth_schemes(device_id, vdom)
 
         @self.mcp.tool(description="Get authentication settings")
         async def get_auth_setting(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_auth_setting(device_id, vdom)
 
@@ -1077,7 +1093,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all DNS filter profiles")
         async def list_dnsfilter_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_dnsfilter_profiles(device_id, vdom)
 
@@ -1094,7 +1110,7 @@ Returns: Creation confirmation.""")
         async def create_dnsfilter_profile(
             device_id: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.create_dnsfilter_profile(device_id, data, vdom)
 
@@ -1102,14 +1118,14 @@ Returns: Creation confirmation.""")
         async def delete_dnsfilter_profile(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.delete_dnsfilter_profile(device_id, name, vdom)
 
         @self.mcp.tool(description="List all DNS domain filters")
         async def list_dnsfilter_domain_filters(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_dnsfilter_domain_filters(device_id, vdom)
 
@@ -1119,21 +1135,21 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all DLP sensors")
         async def list_dlp_sensors(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_dlp_sensors(device_id, vdom)
 
         @self.mcp.tool(description="List all DLP profiles")
         async def list_dlp_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_dlp_profiles(device_id, vdom)
 
         @self.mcp.tool(description="Get DLP settings")
         async def get_dlp_settings(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_dlp_settings(device_id, vdom)
 
@@ -1143,7 +1159,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all email filter profiles")
         async def list_emailfilter_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_emailfilter_profiles(device_id, vdom)
 
@@ -1153,14 +1169,14 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all CA certificates")
         async def get_certificate_ca(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_certificate_ca(device_id, vdom)
 
         @self.mcp.tool(description="List all local certificates")
         async def get_certificate_local(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_certificate_local(device_id, vdom)
 
@@ -1170,7 +1186,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all CASB profiles")
         async def list_casb_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_casb_profiles(device_id, vdom)
 
@@ -1180,7 +1196,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="Get endpoint control settings")
         async def get_endpoint_control_settings(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_endpoint_control_settings(device_id, vdom)
 
@@ -1190,14 +1206,14 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all application groups")
         async def list_application_groups(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_application_groups(device_id, vdom)
 
         @self.mcp.tool(description="List all application control lists")
         async def list_application_lists(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_application_lists(device_id, vdom)
 
@@ -1207,14 +1223,14 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all antivirus profiles")
         async def list_antivirus_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_antivirus_profiles(device_id, vdom)
 
         @self.mcp.tool(description="Get antivirus settings")
         async def get_antivirus_settings(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_antivirus_settings(device_id, vdom)
 
@@ -1224,7 +1240,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="Get alert email settings")
         async def get_alertemail_setting(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_alertemail_setting(device_id, vdom)
 
@@ -1234,7 +1250,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all SSH filter profiles")
         async def list_ssh_filter_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_ssh_filter_profiles(device_id, vdom)
 
@@ -1244,7 +1260,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all SCTP filter profiles")
         async def list_sctp_filter_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_sctp_filter_profiles(device_id, vdom)
 
@@ -1254,14 +1270,14 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all switch ACL groups")
         async def list_switch_acl_groups(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_switch_acl_groups(device_id, vdom)
 
         @self.mcp.tool(description="List all switch 802.1X policies")
         async def list_switch_8021x_policies(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_switch_8021x_policies(device_id, vdom)
 
@@ -1271,35 +1287,35 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all local users")
         async def list_user_locals(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_user_locals(device_id, vdom)
 
         @self.mcp.tool(description="List all user groups")
         async def list_user_groups(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_user_groups(device_id, vdom)
 
         @self.mcp.tool(description="List all LDAP servers")
         async def list_user_ldaps(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_user_ldaps(device_id, vdom)
 
         @self.mcp.tool(description="List all RADIUS servers")
         async def list_user_radiuses(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_user_radiuses(device_id, vdom)
 
         @self.mcp.tool(description="Get user authentication settings")
         async def get_user_setting(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_user_setting(device_id, vdom)
 
@@ -1309,14 +1325,14 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all web filter profiles")
         async def list_webfilter_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_webfilter_profiles(device_id, vdom)
 
         @self.mcp.tool(description="List all web filter URL filters")
         async def list_webfilter_urlfilters(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_webfilter_urlfilters(device_id, vdom)
 
@@ -1326,7 +1342,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all web proxy profiles")
         async def list_web_proxy_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_web_proxy_profiles(device_id, vdom)
 
@@ -1336,7 +1352,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all WAF profiles")
         async def list_waf_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_waf_profiles(device_id, vdom)
 
@@ -1346,7 +1362,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all VoIP profiles")
         async def list_voip_profiles(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_voip_profiles(device_id, vdom)
 
@@ -1356,14 +1372,14 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all IPSec phase1 interfaces")
         async def list_vpn_ipsec_phase1_interfaces(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_vpn_ipsec_phase1_interfaces(device_id, vdom)
 
         @self.mcp.tool(description="List all IPSec phase2 interfaces")
         async def list_vpn_ipsec_phase2_interfaces(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_vpn_ipsec_phase2_interfaces(device_id, vdom)
 
@@ -1373,14 +1389,14 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="Get SSL VPN settings")
         async def get_vpn_ssl_settings(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.get_vpn_ssl_settings(device_id, vdom)
 
         @self.mcp.tool(description="List all SSL VPN web portals")
         async def list_vpn_ssl_web_portals(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_vpn_ssl_web_portals(device_id, vdom)
 
@@ -1390,7 +1406,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all DHCP servers")
         async def list_system_dhcp_servers(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_system_dhcp_servers(device_id, vdom)
 
@@ -1400,7 +1416,7 @@ Returns: Creation confirmation.""")
         @self.mcp.tool(description="List all SNMP communities")
         async def list_system_snmp_communities(
             device_id: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.security_tools.list_system_snmp_communities(device_id, vdom)
 
@@ -1413,8 +1429,8 @@ Returns: Creation confirmation.""")
         async def update_security_policy(
             device_id: str,
             policy_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_security_policy(device_id, policy_id, policy_data, vdom)
 
@@ -1422,7 +1438,7 @@ Returns: Creation confirmation.""")
         async def delete_security_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_security_policy(device_id, policy_id, vdom)
 
@@ -1430,7 +1446,7 @@ Returns: Creation confirmation.""")
         async def get_security_policy_detail(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.get_security_policy_detail(device_id, policy_id, vdom)
 
@@ -1438,8 +1454,8 @@ Returns: Creation confirmation.""")
         async def update_proxy_policy(
             device_id: str,
             policy_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_proxy_policy(device_id, policy_id, policy_data, vdom)
 
@@ -1447,7 +1463,7 @@ Returns: Creation confirmation.""")
         async def delete_proxy_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_proxy_policy(device_id, policy_id, vdom)
 
@@ -1455,7 +1471,7 @@ Returns: Creation confirmation.""")
         async def get_proxy_policy_detail(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.get_proxy_policy_detail(device_id, policy_id, vdom)
 
@@ -1469,8 +1485,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_proxy_address(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_proxy_address(device_id, data, vdom)
 
@@ -1484,8 +1500,8 @@ Returns: Update confirmation.""")
         async def update_proxy_address(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_proxy_address(device_id, name, data, vdom)
 
@@ -1493,14 +1509,14 @@ Returns: Update confirmation.""")
         async def delete_proxy_address(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_proxy_address(device_id, name, vdom)
 
         @self.mcp.tool(description="List Proxy Addrgrps")
         async def list_proxy_addrgrps(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.list_proxy_addrgrps(device_id, vdom)
 
@@ -1513,8 +1529,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_proxy_addrgrp(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_proxy_addrgrp(device_id, data, vdom)
 
@@ -1528,8 +1544,8 @@ Returns: Update confirmation.""")
         async def update_proxy_addrgrp(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_proxy_addrgrp(device_id, name, data, vdom)
 
@@ -1537,22 +1553,22 @@ Returns: Update confirmation.""")
         async def delete_proxy_addrgrp(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_proxy_addrgrp(device_id, name, vdom)
 
         @self.mcp.tool(description="List Shaping Policies")
         async def list_shaping_policies(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.list_shaping_policies(device_id, vdom)
 
         @self.mcp.tool(description="Create a new shaping policy. All multi-value fields (interface, address, service references) MUST use [{'name': '...'}] object-array format — plain strings are NOT accepted by FortiOS 8.0.0 VM and will cause 500 errors.")
         async def create_shaping_policy(
             device_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_shaping_policy(device_id, policy_data, vdom)
 
@@ -1560,8 +1576,8 @@ Returns: Update confirmation.""")
         async def update_shaping_policy(
             device_id: str,
             policy_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_shaping_policy(device_id, policy_id, policy_data, vdom)
 
@@ -1569,14 +1585,14 @@ Returns: Update confirmation.""")
         async def delete_shaping_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_shaping_policy(device_id, policy_id, vdom)
 
         @self.mcp.tool(description="List Shaping Profiles")
         async def list_shaping_profiles(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.list_shaping_profiles(device_id, vdom)
 
@@ -1589,8 +1605,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_shaping_profile(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_shaping_profile(device_id, data, vdom)
 
@@ -1604,8 +1620,8 @@ Returns: Update confirmation.""")
         async def update_shaping_profile(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_shaping_profile(device_id, name, data, vdom)
 
@@ -1613,15 +1629,15 @@ Returns: Update confirmation.""")
         async def delete_shaping_profile(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_shaping_profile(device_id, name, vdom)
 
         @self.mcp.tool(description="Create a new DoS policy. All multi-value fields (interface, address, service references) MUST use [{'name': '...'}] object-array format — plain strings are NOT accepted by FortiOS 8.0.0 VM and will cause 500 errors.")
         async def create_dos_policy(
             device_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_dos_policy(device_id, policy_data, vdom)
 
@@ -1629,8 +1645,8 @@ Returns: Update confirmation.""")
         async def update_dos_policy(
             device_id: str,
             policy_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_dos_policy(device_id, policy_id, policy_data, vdom)
 
@@ -1638,15 +1654,15 @@ Returns: Update confirmation.""")
         async def delete_dos_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_dos_policy(device_id, policy_id, vdom)
 
         @self.mcp.tool(description="Create a new local-in policy. All multi-value fields (interface, address, service references) MUST use [{'name': '...'}] object-array format — plain strings are NOT accepted by FortiOS 8.0.0 VM and will cause 500 errors.")
         async def create_local_in_policy(
             device_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_local_in_policy(device_id, policy_data, vdom)
 
@@ -1654,8 +1670,8 @@ Returns: Update confirmation.""")
         async def update_local_in_policy(
             device_id: str,
             policy_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_local_in_policy(device_id, policy_id, policy_data, vdom)
 
@@ -1663,22 +1679,22 @@ Returns: Update confirmation.""")
         async def delete_local_in_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_local_in_policy(device_id, policy_id, vdom)
 
         @self.mcp.tool(description="List Interface Policies")
         async def list_interface_policies(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.list_interface_policies(device_id, vdom)
 
         @self.mcp.tool(description="Create a new interface policy. All multi-value fields (interface, address, service references) MUST use [{'name': '...'}] object-array format — plain strings are NOT accepted by FortiOS 8.0.0 VM and will cause 500 errors.")
         async def create_interface_policy(
             device_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_interface_policy(device_id, policy_data, vdom)
 
@@ -1686,8 +1702,8 @@ Returns: Update confirmation.""")
         async def update_interface_policy(
             device_id: str,
             policy_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_interface_policy(device_id, policy_id, policy_data, vdom)
 
@@ -1695,22 +1711,22 @@ Returns: Update confirmation.""")
         async def delete_interface_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_interface_policy(device_id, policy_id, vdom)
 
         @self.mcp.tool(description="List Multicast Policies")
         async def list_multicast_policies(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.list_multicast_policies(device_id, vdom)
 
         @self.mcp.tool(description="Create a new multicast policy. All multi-value fields (interface, address, service references) MUST use [{'name': '...'}] object-array format — plain strings are NOT accepted by FortiOS 8.0.0 VM and will cause 500 errors.")
         async def create_multicast_policy(
             device_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_multicast_policy(device_id, policy_data, vdom)
 
@@ -1718,8 +1734,8 @@ Returns: Update confirmation.""")
         async def update_multicast_policy(
             device_id: str,
             policy_id: str,
-            policy_data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            policy_data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_multicast_policy(device_id, policy_id, policy_data, vdom)
 
@@ -1727,14 +1743,14 @@ Returns: Update confirmation.""")
         async def delete_multicast_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_multicast_policy(device_id, policy_id, vdom)
 
         @self.mcp.tool(description="List Multicast Addresses")
         async def list_multicast_addresses(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.list_multicast_addresses(device_id, vdom)
 
@@ -1749,8 +1765,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_multicast_address(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_multicast_address(device_id, data, vdom)
 
@@ -1764,8 +1780,8 @@ Returns: Update confirmation.""")
         async def update_multicast_address(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_multicast_address(device_id, name, data, vdom)
 
@@ -1773,14 +1789,14 @@ Returns: Update confirmation.""")
         async def delete_multicast_address(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_multicast_address(device_id, name, vdom)
 
         @self.mcp.tool(description="List Sniffers")
         async def list_sniffers(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.list_sniffers(device_id, vdom)
 
@@ -1795,8 +1811,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_sniffer(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.create_sniffer(device_id, data, vdom)
 
@@ -1810,8 +1826,8 @@ Returns: Update confirmation.""")
         async def update_sniffer(
             device_id: str,
             sniffer_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.update_sniffer(device_id, sniffer_id, data, vdom)
 
@@ -1819,7 +1835,7 @@ Returns: Update confirmation.""")
         async def delete_sniffer(
             device_id: str,
             sniffer_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.firewall_tools.delete_sniffer(device_id, sniffer_id, vdom)
 
@@ -1837,8 +1853,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_traffic_shaper(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.create_traffic_shaper(device_id, data, vdom)
 
@@ -1852,8 +1868,8 @@ Returns: Update confirmation.""")
         async def update_traffic_shaper(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.update_traffic_shaper(device_id, name, data, vdom)
 
@@ -1861,14 +1877,14 @@ Returns: Update confirmation.""")
         async def delete_traffic_shaper(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.delete_traffic_shaper(device_id, name, vdom)
 
         @self.mcp.tool(description="List Per Ip Shapers")
         async def list_per_ip_shapers(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.list_per_ip_shapers(device_id, vdom)
 
@@ -1882,8 +1898,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_per_ip_shaper(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.create_per_ip_shaper(device_id, data, vdom)
 
@@ -1897,8 +1913,8 @@ Returns: Update confirmation.""")
         async def update_per_ip_shaper(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.update_per_ip_shaper(device_id, name, data, vdom)
 
@@ -1906,7 +1922,7 @@ Returns: Update confirmation.""")
         async def delete_per_ip_shaper(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.delete_per_ip_shaper(device_id, name, vdom)
 
@@ -1921,8 +1937,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_central_snat_map(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.create_central_snat_map(device_id, data, vdom)
 
@@ -1936,8 +1952,8 @@ Returns: Update confirmation.""")
         async def update_central_snat_map(
             device_id: str,
             policy_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.update_central_snat_map(device_id, policy_id, data, vdom)
 
@@ -1945,7 +1961,7 @@ Returns: Update confirmation.""")
         async def delete_central_snat_map(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.delete_central_snat_map(device_id, policy_id, vdom)
 
@@ -1953,14 +1969,14 @@ Returns: Update confirmation.""")
         async def get_central_snat_map_detail(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.get_central_snat_map_detail(device_id, policy_id, vdom)
 
         @self.mcp.tool(description="List Ip Translations")
         async def list_ip_translations(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.list_ip_translations(device_id, vdom)
 
@@ -1973,8 +1989,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_ip_translation(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.create_ip_translation(device_id, data, vdom)
 
@@ -1988,8 +2004,8 @@ Returns: Update confirmation.""")
         async def update_ip_translation(
             device_id: str,
             trans_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.update_ip_translation(device_id, trans_id, data, vdom)
 
@@ -1997,14 +2013,14 @@ Returns: Update confirmation.""")
         async def delete_ip_translation(
             device_id: str,
             trans_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.delete_ip_translation(device_id, trans_id, vdom)
 
         @self.mcp.tool(description="List Identity Based Routes")
         async def list_identity_based_routes(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.list_identity_based_routes(device_id, vdom)
 
@@ -2019,8 +2035,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_identity_based_route(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.create_identity_based_route(device_id, data, vdom)
 
@@ -2034,8 +2050,8 @@ Returns: Update confirmation.""")
         async def update_identity_based_route(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.update_identity_based_route(device_id, name, data, vdom)
 
@@ -2043,14 +2059,14 @@ Returns: Update confirmation.""")
         async def delete_identity_based_route(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.delete_identity_based_route(device_id, name, vdom)
 
         @self.mcp.tool(description="List Dns Translations")
         async def list_dns_translations(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.list_dns_translations(device_id, vdom)
 
@@ -2063,8 +2079,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_dns_translation(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.create_dns_translation(device_id, data, vdom)
 
@@ -2078,8 +2094,8 @@ Returns: Update confirmation.""")
         async def update_dns_translation(
             device_id: str,
             trans_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.update_dns_translation(device_id, trans_id, data, vdom)
 
@@ -2087,22 +2103,22 @@ Returns: Update confirmation.""")
         async def delete_dns_translation(
             device_id: str,
             trans_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.delete_dns_translation(device_id, trans_id, vdom)
 
         @self.mcp.tool(description="List Ttl Policies")
         async def list_ttl_policies(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.list_ttl_policies(device_id, vdom)
 
         @self.mcp.tool(description="Create a new TTL policy. All multi-value fields (interface, address, service references) MUST use [{'name': '...'}] object-array format — plain strings are NOT accepted by FortiOS 8.0.0 VM and will cause 500 errors.")
         async def create_ttl_policy(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.create_ttl_policy(device_id, data, vdom)
 
@@ -2110,8 +2126,8 @@ Returns: Update confirmation.""")
         async def update_ttl_policy(
             device_id: str,
             policy_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.update_ttl_policy(device_id, policy_id, data, vdom)
 
@@ -2119,14 +2135,14 @@ Returns: Update confirmation.""")
         async def delete_ttl_policy(
             device_id: str,
             policy_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.delete_ttl_policy(device_id, policy_id, vdom)
 
         @self.mcp.tool(description="List Decrypted Traffic Mirrors")
         async def list_decrypted_traffic_mirrors(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.list_decrypted_traffic_mirrors(device_id, vdom)
 
@@ -2140,8 +2156,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_decrypted_traffic_mirror(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.create_decrypted_traffic_mirror(device_id, data, vdom)
 
@@ -2155,8 +2171,8 @@ Returns: Update confirmation.""")
         async def update_decrypted_traffic_mirror(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.resource_tools.update_decrypted_traffic_mirror(device_id, name, data, vdom)
 
@@ -2164,7 +2180,7 @@ Returns: Update confirmation.""")
         async def delete_decrypted_traffic_mirror(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.resource_tools.delete_decrypted_traffic_mirror(device_id, name, vdom)
 
@@ -2182,8 +2198,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_ssl_ssh_profile(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.create_ssl_ssh_profile(device_id, data, vdom)
 
@@ -2197,8 +2213,8 @@ Returns: Update confirmation.""")
         async def update_ssl_ssh_profile(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_ssl_ssh_profile(device_id, name, data, vdom)
 
@@ -2206,14 +2222,14 @@ Returns: Update confirmation.""")
         async def delete_ssl_ssh_profile(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.delete_ssl_ssh_profile(device_id, name, vdom)
 
         @self.mcp.tool(description="List Ssl Servers")
         async def list_ssl_servers(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.list_ssl_servers(device_id, vdom)
 
@@ -2226,8 +2242,8 @@ Required fields in data:
 Returns: Creation confirmation.""")
         async def create_ssl_server(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.create_ssl_server(device_id, data, vdom)
 
@@ -2241,8 +2257,8 @@ Returns: Update confirmation.""")
         async def update_ssl_server(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_ssl_server(device_id, name, data, vdom)
 
@@ -2250,7 +2266,7 @@ Returns: Update confirmation.""")
         async def delete_ssl_server(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.delete_ssl_server(device_id, name, vdom)
 
@@ -2264,8 +2280,8 @@ Optional: av-profile, ips-sensor, webfilter-profile, application-list, ssl-ssh-p
 Returns: Creation confirmation.""")
         async def create_profile_group(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.create_profile_group(device_id, data, vdom)
 
@@ -2279,8 +2295,8 @@ Returns: Update confirmation.""")
         async def update_profile_group(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_profile_group(device_id, name, data, vdom)
 
@@ -2288,14 +2304,14 @@ Returns: Update confirmation.""")
         async def delete_profile_group(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.delete_profile_group(device_id, name, vdom)
 
         @self.mcp.tool(description="List Profile Protocol Options")
         async def list_profile_protocol_options(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.list_profile_protocol_options(device_id, vdom)
 
@@ -2309,8 +2325,8 @@ Optional protocol blocks: http, ftp, imap, pop3, smtp, nntp, dns, cifs — each 
 Returns: Creation confirmation.""")
         async def create_profile_protocol_options(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.create_profile_protocol_options(device_id, data, vdom)
 
@@ -2324,8 +2340,8 @@ Returns: Update confirmation.""")
         async def update_profile_protocol_options(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_profile_protocol_options(device_id, name, data, vdom)
 
@@ -2333,7 +2349,7 @@ Returns: Update confirmation.""")
         async def delete_profile_protocol_options(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.delete_profile_protocol_options(device_id, name, vdom)
 
@@ -2351,8 +2367,8 @@ Common rule IDs: FortiGuard IPS signatures use numeric rule IDs. Use list_ips_si
 Returns: Creation confirmation with sensor details.""")
         async def create_ips_sensor(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.create_ips_sensor(device_id, data, vdom)
 
@@ -2367,8 +2383,8 @@ Returns: Update confirmation.""")
         async def update_ips_sensor(
             device_id: str,
             name: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_ips_sensor(device_id, name, data, vdom)
 
@@ -2376,7 +2392,7 @@ Returns: Update confirmation.""")
         async def delete_ips_sensor(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.delete_ips_sensor(device_id, name, vdom)
 
@@ -2384,7 +2400,7 @@ Returns: Update confirmation.""")
         async def get_ips_sensor_detail(
             device_id: str,
             name: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.get_ips_sensor_detail(device_id, name, vdom)
 
@@ -2399,15 +2415,15 @@ Common fields in data:
 Returns: Update confirmation.""")
         async def update_log_setting(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_log_setting(device_id, data, vdom)
 
         @self.mcp.tool(description="Get Log Disk Setting")
         async def get_log_disk_setting(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.get_log_disk_setting(device_id, vdom)
 
@@ -2423,15 +2439,15 @@ Common fields in data:
 Returns: Update confirmation.""")
         async def update_log_disk_setting(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_log_disk_setting(device_id, data, vdom)
 
         @self.mcp.tool(description="Get Log Fortianalyzer Setting")
         async def get_log_fortianalyzer_setting(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.get_log_fortianalyzer_setting(device_id, vdom)
 
@@ -2446,15 +2462,15 @@ Common fields in data:
 Returns: Update confirmation.""")
         async def update_log_fortianalyzer_setting(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_log_fortianalyzer_setting(device_id, data, vdom)
 
         @self.mcp.tool(description="Get Log Syslogd Setting")
         async def get_log_syslogd_setting(
             device_id: str,
-            vdom: Optional[str] = None,
+            vdom: str | None = None,
         ):
             return await self.security_tools.get_log_syslogd_setting(device_id, vdom)
 
@@ -2470,8 +2486,8 @@ Common fields in data:
 Returns: Update confirmation.""")
         async def update_log_syslogd_setting(
             device_id: str,
-            data: Dict[str, Any],
-            vdom: Optional[str] = None,
+            data: dict[str, Any],
+            vdom: str | None = None,
         ):
             return await self.security_tools.update_log_syslogd_setting(device_id, data, vdom)
 
@@ -2495,7 +2511,7 @@ Examples:
         async def cmdb_list(
             device_id: str,
             path: str,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.cmdb_tools.cmdb_list(device_id, path, vdom)
 
@@ -2503,8 +2519,8 @@ Examples:
         async def cmdb_get(
             device_id: str,
             path: str,
-            name: Optional[str] = None,
-            vdom: Optional[str] = None
+            name: str | None = None,
+            vdom: str | None = None
         ):
             return await self.cmdb_tools.cmdb_get(device_id, path, name, vdom)
 
@@ -2513,7 +2529,7 @@ Examples:
             device_id: str,
             path: str,
             data: dict,
-            vdom: Optional[str] = None
+            vdom: str | None = None
         ):
             return await self.cmdb_tools.cmdb_create(device_id, path, data, vdom)
 
@@ -2522,8 +2538,8 @@ Examples:
             device_id: str,
             path: str,
             data: dict,
-            name: Optional[str] = None,
-            vdom: Optional[str] = None
+            name: str | None = None,
+            vdom: str | None = None
         ):
             return await self.cmdb_tools.cmdb_update(device_id, path, data, name, vdom)
 
@@ -2531,8 +2547,8 @@ Examples:
         async def cmdb_delete(
             device_id: str,
             path: str,
-            name: Optional[str] = None,
-            vdom: Optional[str] = None
+            name: str | None = None,
+            vdom: str | None = None
         ):
             return await self.cmdb_tools.cmdb_delete(device_id, path, name, vdom)
 
@@ -2540,75 +2556,75 @@ Examples:
         # Monitor tools (47 tools — 46 specific + 1 generic monitor_request)
         # ============================================================
         @self.mcp.tool(description="Get IPSec VPN monitor status")
-        async def monitor_vpn_ipsec(device_id: str, vdom: Optional[str] = None):
+        async def monitor_vpn_ipsec(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_vpn_ipsec(device_id, vdom)
 
         @self.mcp.tool(description="Get IPSec VPN connection count")
-        async def monitor_vpn_ipsec_connection_count(device_id: str, vdom: Optional[str] = None):
+        async def monitor_vpn_ipsec_connection_count(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_vpn_ipsec_connection_count(device_id, vdom)
 
         @self.mcp.tool(description="Get SSL VPN status")
-        async def monitor_vpn_ssl(device_id: str, vdom: Optional[str] = None):
+        async def monitor_vpn_ssl(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_vpn_ssl(device_id, vdom)
 
         @self.mcp.tool(description="Get SSL VPN statistics")
-        async def monitor_vpn_ssl_stats(device_id: str, vdom: Optional[str] = None):
+        async def monitor_vpn_ssl_stats(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_vpn_ssl_stats(device_id, vdom)
 
         @self.mcp.tool(description="Get firewall authenticated users")
-        async def monitor_user_firewall(device_id: str, vdom: Optional[str] = None):
+        async def monitor_user_firewall(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_user_firewall(device_id, vdom)
 
         @self.mcp.tool(description="Get firewall user count")
-        async def monitor_user_firewall_count(device_id: str, vdom: Optional[str] = None):
+        async def monitor_user_firewall_count(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_user_firewall_count(device_id, vdom)
 
         @self.mcp.tool(description="Get banned users")
-        async def monitor_user_banned(device_id: str, vdom: Optional[str] = None):
+        async def monitor_user_banned(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_user_banned(device_id, vdom)
 
         @self.mcp.tool(description="Get FSSO users")
-        async def monitor_user_fsso(device_id: str, vdom: Optional[str] = None):
+        async def monitor_user_fsso(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_user_fsso(device_id, vdom)
 
         @self.mcp.tool(description="Get SD-WAN health checks")
-        async def monitor_virtual_wan_health_check(device_id: str, vdom: Optional[str] = None):
+        async def monitor_virtual_wan_health_check(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_virtual_wan_health_check(device_id, vdom)
 
         @self.mcp.tool(description="Get SD-WAN members")
-        async def monitor_virtual_wan_members(device_id: str, vdom: Optional[str] = None):
+        async def monitor_virtual_wan_members(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_virtual_wan_members(device_id, vdom)
 
         @self.mcp.tool(description="Get SD-WAN SLA log")
-        async def monitor_virtual_wan_sla_log(device_id: str, vdom: Optional[str] = None):
+        async def monitor_virtual_wan_sla_log(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_virtual_wan_sla_log(device_id, vdom)
 
         @self.mcp.tool(description="Get UTM application lookup by name")
-        async def monitor_utm_app_lookup(device_id: str, app_name: str, vdom: Optional[str] = None):
+        async def monitor_utm_app_lookup(device_id: str, app_name: str, vdom: str | None = None):
             return await self.resource_tools.monitor_utm_app_lookup(device_id, app_name, vdom)
 
         @self.mcp.tool(description="Get UTM application categories")
-        async def monitor_utm_application_categories(device_id: str, vdom: Optional[str] = None):
+        async def monitor_utm_application_categories(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_utm_application_categories(device_id, vdom)
 
         @self.mcp.tool(description="Get UTM applications list")
-        async def monitor_utm_applications(device_id: str, vdom: Optional[str] = None):
+        async def monitor_utm_applications(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_utm_applications(device_id, vdom)
 
         @self.mcp.tool(description="Get IPv4 routing table")
-        async def monitor_router_ipv4(device_id: str, vdom: Optional[str] = None):
+        async def monitor_router_ipv4(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_router_ipv4(device_id, vdom)
 
         @self.mcp.tool(description="Get IPv6 routing table")
-        async def monitor_router_ipv6(device_id: str, vdom: Optional[str] = None):
+        async def monitor_router_ipv6(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_router_ipv6(device_id, vdom)
 
         @self.mcp.tool(description="Get firewall ACL")
-        async def monitor_firewall_acl(device_id: str, vdom: Optional[str] = None):
+        async def monitor_firewall_acl(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_firewall_acl(device_id, vdom)
 
         @self.mcp.tool(description="Get firewall ACL6")
-        async def monitor_firewall_acl6(device_id: str, vdom: Optional[str] = None):
+        async def monitor_firewall_acl6(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_firewall_acl6(device_id, vdom)
 
         @self.mcp.tool(description="Get license status")
@@ -2616,23 +2632,23 @@ Examples:
             return await self.resource_tools.monitor_license_status(device_id)
 
         @self.mcp.tool(description="Get log disk usage")
-        async def monitor_log_current_disk_usage(device_id: str, vdom: Optional[str] = None):
+        async def monitor_log_current_disk_usage(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_log_current_disk_usage(device_id, vdom)
 
         @self.mcp.tool(description="Get FortiAnalyzer log status")
-        async def monitor_log_fortianalyzer(device_id: str, vdom: Optional[str] = None):
+        async def monitor_log_fortianalyzer(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_log_fortianalyzer(device_id, vdom)
 
         @self.mcp.tool(description="Get FortiCloud log status")
-        async def monitor_log_forticloud(device_id: str, vdom: Optional[str] = None):
+        async def monitor_log_forticloud(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_log_forticloud(device_id, vdom)
 
         @self.mcp.tool(description="Get IPS rate-based signatures")
-        async def monitor_ips_rate_based(device_id: str, vdom: Optional[str] = None):
+        async def monitor_ips_rate_based(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_ips_rate_based(device_id, vdom)
 
         @self.mcp.tool(description="Get IPS session performance")
-        async def monitor_ips_session_performance(device_id: str, vdom: Optional[str] = None):
+        async def monitor_ips_session_performance(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_ips_session_performance(device_id, vdom)
 
         @self.mcp.tool(description="Get FortiGuard service communication stats")
@@ -2644,15 +2660,15 @@ Examples:
             return await self.resource_tools.monitor_geoip_query(device_id, ip)
 
         @self.mcp.tool(description="Get FortiView real-time statistics")
-        async def monitor_fortiview_realtime_stats(device_id: str, vdom: Optional[str] = None):
+        async def monitor_fortiview_realtime_stats(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_fortiview_realtime_stats(device_id, vdom)
 
         @self.mcp.tool(description="Get ARP table")
-        async def monitor_network_arp(device_id: str, vdom: Optional[str] = None):
+        async def monitor_network_arp(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_network_arp(device_id, vdom)
 
         @self.mcp.tool(description="Get LLDP neighbors")
-        async def monitor_network_lldp_neighbors(device_id: str, vdom: Optional[str] = None):
+        async def monitor_network_lldp_neighbors(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_network_lldp_neighbors(device_id, vdom)
 
         @self.mcp.tool(description="Get DNS latency")
@@ -2664,15 +2680,15 @@ Examples:
             return await self.resource_tools.monitor_network_reverse_ip_lookup(device_id, ip)
 
         @self.mcp.tool(description="Get BGP neighbors")
-        async def monitor_router_bgp_neighbors(device_id: str, vdom: Optional[str] = None):
+        async def monitor_router_bgp_neighbors(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_router_bgp_neighbors(device_id, vdom)
 
         @self.mcp.tool(description="Get BGP paths")
-        async def monitor_router_bgp_paths(device_id: str, vdom: Optional[str] = None):
+        async def monitor_router_bgp_paths(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_router_bgp_paths(device_id, vdom)
 
         @self.mcp.tool(description="Get available interfaces (with names and status). Note: for VIPs use 'any' to match all interfaces.")
-        async def monitor_system_available_interfaces(device_id: str, vdom: Optional[str] = None):
+        async def monitor_system_available_interfaces(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_system_available_interfaces(device_id, vdom)
 
         @self.mcp.tool(description="Get FortiCloud registration status")
@@ -2680,7 +2696,7 @@ Examples:
             return await self.resource_tools.monitor_registration_forticloud_status(device_id)
 
         @self.mcp.tool(description="Get web filter FortiGuard categories")
-        async def monitor_webfilter_fortiguard_categories(device_id: str, vdom: Optional[str] = None):
+        async def monitor_webfilter_fortiguard_categories(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_webfilter_fortiguard_categories(device_id, vdom)
 
         @self.mcp.tool(description="Get system status (hostname, serial number, firmware version, HA status)")
@@ -2688,7 +2704,7 @@ Examples:
             return await self.resource_tools.monitor_system_status(device_id)
 
         @self.mcp.tool(description="Get CPU, memory, and session resource usage. scope='current' (default) returns latest snapshot only; scope='full' returns all history (~232KB).")
-        async def monitor_system_resource_usage(device_id: str, vdom: Optional[str] = None, scope: str = "current"):
+        async def monitor_system_resource_usage(device_id: str, vdom: str | None = None, scope: str = "current"):
             return await self.resource_tools.monitor_system_resource_usage(device_id, vdom, scope=scope)
 
         @self.mcp.tool(description="Get system performance status (CPU/memory per interval)")
@@ -2696,7 +2712,7 @@ Examples:
             return await self.resource_tools.monitor_system_performance_status(device_id)
 
         @self.mcp.tool(description="Get interface bandwidth, speed, and utilization")
-        async def monitor_system_interface(device_id: str, vdom: Optional[str] = None):
+        async def monitor_system_interface(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_system_interface(device_id, vdom)
 
         @self.mcp.tool(description="Get currently logged-in administrators")
@@ -2712,22 +2728,22 @@ Examples:
             return await self.resource_tools.monitor_system_vm_information(device_id)
 
         @self.mcp.tool(description="Get firewall policy statistics and hit counts")
-        async def monitor_firewall_policy(device_id: str, vdom: Optional[str] = None):
+        async def monitor_firewall_policy(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_firewall_policy(device_id, vdom)
 
         @self.mcp.tool(description="Get active session table")
-        async def monitor_firewall_sessions(device_id: str, vdom: Optional[str] = None):
+        async def monitor_firewall_sessions(device_id: str, vdom: str | None = None):
             return await self.resource_tools.monitor_firewall_sessions(device_id, vdom)
 
         @self.mcp.tool(description="Policy lookup by 5-tuple (srcip, dstip, srcport, dstport, protocol)")
-        async def monitor_firewall_policy_lookup(device_id: str, params: dict, vdom: Optional[str] = None):
+        async def monitor_firewall_policy_lookup(device_id: str, params: dict, vdom: str | None = None):
             return await self.resource_tools.monitor_firewall_policy_lookup(device_id, params, vdom)
 
         @self.mcp.tool(description="Generic monitor API — access ANY /api/v2/monitor/ GET or POST endpoint "
                        "(e.g. 'system/status', 'system/os/reboot'). Use method='POST' + data for POST endpoints.")
         async def monitor_request(device_id: str, endpoint: str,
-                                   params: Optional[dict] = None, vdom: Optional[str] = None,
-                                   method: str = "GET", data: Optional[dict] = None):
+                                   params: dict | None = None, vdom: str | None = None,
+                                   method: str = "GET", data: dict | None = None):
             return await self.resource_tools.monitor_request(device_id, endpoint, params, vdom, method, data)
 
         # System tools
@@ -2744,7 +2760,7 @@ Examples:
                             api_client.test_connection(), timeout=5.0
                         )
                         return device_id, "connected" if success else "disconnected"
-                    except asyncio.TimeoutError:
+                    except TimeoutError:
                         return device_id, "timeout"
                     except Exception:
                         return device_id, "error"
@@ -2809,7 +2825,7 @@ Examples:
         except Exception as e:
             self.logger.error(f"Error formatting response for {operation}: {e}")
             error_response = {
-                "error": f"Failed to format response: {str(e)}",
+                "error": f"Failed to format response: {e!s}",
                 "operation": operation
             }
             return [Content(type="text", text=json.dumps(error_response, indent=2))]
@@ -2825,8 +2841,9 @@ Examples:
 
         Auth middleware is applied when ``config.auth.require_auth`` is True.
         """
-        import uvicorn
         import asyncio
+
+        import uvicorn
         from starlette.applications import Starlette
 
         def signal_handler(signum, frame):

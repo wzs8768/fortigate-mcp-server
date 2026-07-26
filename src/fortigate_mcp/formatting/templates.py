@@ -5,8 +5,9 @@ This module provides structured templates for formatting FortiGate API responses
 into human-readable and consistent output formats. Templates are organized by
 resource type and operation.
 """
-from typing import Dict, Any, Optional
 from datetime import datetime
+from typing import Any
+
 
 class FortiGateTemplates:
     """Template collection for FortiGate resource formatting.
@@ -16,7 +17,7 @@ class FortiGateTemplates:
     """
     
     @staticmethod
-    def device_list(devices: Dict[str, Dict[str, Any]]) -> str:
+    def device_list(devices: dict[str, dict[str, Any]]) -> str:
         """Format device list for display.
         
         Args:
@@ -47,7 +48,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def device_status(device_id: str, status_data: Dict[str, Any]) -> str:
+    def device_status(device_id: str, status_data: dict[str, Any]) -> str:
         """Format device system status.
         
         Args:
@@ -83,7 +84,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def firewall_policies(policies_data: Dict[str, Any]) -> str:
+    def firewall_policies(policies_data: dict[str, Any]) -> str:
         """Format firewall policies list.
         
         Args:
@@ -94,7 +95,7 @@ class FortiGateTemplates:
         """
         lines = ["Firewall Policies", ""]
         
-        if "results" in policies_data and policies_data["results"]:
+        if policies_data.get("results"):
             policies = policies_data["results"]
             
             for policy in policies:
@@ -149,9 +150,9 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def firewall_policy_detail(policy_data: Dict[str, Any], device_id: str, 
-                              address_objects: Optional[Dict[str, Any]] = None,
-                              service_objects: Optional[Dict[str, Any]] = None) -> str:
+    def firewall_policy_detail(policy_data: dict[str, Any], device_id: str, 
+                              address_objects: dict[str, Any] | None = None,
+                              service_objects: dict[str, Any] | None = None) -> str:
         """Format detailed firewall policy information.
         
         Args:
@@ -338,7 +339,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def address_objects(addresses_data: Dict[str, Any]) -> str:
+    def address_objects(addresses_data: dict[str, Any]) -> str:
         """Format address objects list.
         
         Args:
@@ -349,7 +350,7 @@ class FortiGateTemplates:
         """
         lines = ["Address Objects", ""]
         
-        if "results" in addresses_data and addresses_data["results"]:
+        if addresses_data.get("results"):
             addresses = addresses_data["results"]
             
             for addr in addresses:
@@ -379,7 +380,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def virtual_ips(vips_data: Dict[str, Any]) -> str:
+    def virtual_ips(vips_data: dict[str, Any]) -> str:
         """Format virtual IPs list.
         
         Args:
@@ -390,7 +391,7 @@ class FortiGateTemplates:
         """
         lines = ["Virtual IPs", ""]
         
-        if "results" in vips_data and vips_data["results"]:
+        if vips_data.get("results"):
             vips = vips_data["results"]
             
             for vip in vips:
@@ -421,7 +422,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def virtual_ip_detail(vip_data: Dict[str, Any]) -> str:
+    def virtual_ip_detail(vip_data: dict[str, Any]) -> str:
         """Format virtual IP detail.
         
         Args:
@@ -432,7 +433,7 @@ class FortiGateTemplates:
         """
         lines = ["Virtual IP Detail", ""]
         
-        if "results" in vip_data and vip_data["results"]:
+        if vip_data.get("results"):
             vip = vip_data["results"][0] if isinstance(vip_data["results"], list) else vip_data["results"]
             
             lines.extend([
@@ -463,7 +464,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def service_objects(services_data: Dict[str, Any]) -> str:
+    def service_objects(services_data: dict[str, Any]) -> str:
         """Format service objects list.
         
         Args:
@@ -474,7 +475,7 @@ class FortiGateTemplates:
         """
         lines = ["Service Objects", ""]
         
-        if "results" in services_data and services_data["results"]:
+        if services_data.get("results"):
             services = services_data["results"]
             
             for service in services:
@@ -503,7 +504,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def routing_table(routing_data: Dict[str, Any]) -> str:
+    def routing_table(routing_data: dict[str, Any]) -> str:
         """Format routing table.
         
         Args:
@@ -514,7 +515,7 @@ class FortiGateTemplates:
         """
         lines = ["Routing Table", ""]
         
-        if "results" in routing_data and routing_data["results"]:
+        if routing_data.get("results"):
             routes = routing_data["results"]
             
             for route in routes:
@@ -546,7 +547,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def static_routes(routes_data: Dict[str, Any]) -> str:
+    def static_routes(routes_data: dict[str, Any]) -> str:
         """Format static routes list.
         
         Args:
@@ -557,7 +558,7 @@ class FortiGateTemplates:
         """
         lines = ["Static Routes", ""]
         
-        if "results" in routes_data and routes_data["results"]:
+        if routes_data.get("results"):
             routes = routes_data["results"]
             
             for route in routes:
@@ -584,7 +585,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def interfaces(interfaces_data: Dict[str, Any]) -> str:
+    def interfaces(interfaces_data: dict[str, Any]) -> str:
         """Format interfaces list.
         
         Args:
@@ -595,7 +596,7 @@ class FortiGateTemplates:
         """
         lines = ["Network Interfaces", ""]
         
-        if "results" in interfaces_data and interfaces_data["results"]:
+        if interfaces_data.get("results"):
             interfaces = interfaces_data["results"]
             
             for interface in interfaces:
@@ -622,7 +623,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def vdoms(vdoms_data: Dict[str, Any]) -> str:
+    def vdoms(vdoms_data: dict[str, Any]) -> str:
         """Format VDOMs list.
         
         Args:
@@ -633,7 +634,7 @@ class FortiGateTemplates:
         """
         lines = ["Virtual Domains (VDOMs)", ""]
         
-        if "results" in vdoms_data and vdoms_data["results"]:
+        if vdoms_data.get("results"):
             vdoms = vdoms_data["results"]
             
             for vdom in vdoms:
@@ -655,7 +656,7 @@ class FortiGateTemplates:
     
     @staticmethod
     def operation_result(operation: str, device_id: str, success: bool, 
-                        details: Optional[str] = None, error: Optional[str] = None) -> str:
+                        details: str | None = None, error: str | None = None) -> str:
         """Format operation result.
         
         Args:
@@ -694,7 +695,7 @@ class FortiGateTemplates:
         return "\n".join(lines)
     
     @staticmethod
-    def health_status(status: str, details: Dict[str, Any]) -> str:
+    def health_status(status: str, details: dict[str, Any]) -> str:
         """Format health check status.
         
         Args:
