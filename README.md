@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 8.0 REST API 管理服务器 — 279 MCP 工具 · 540+ API 方法 · 1023+ CMDB 端点 -->
+<!-- FortiGate MCP Server — FortiOS 7.6/8.0 REST API 管理服务器 — 279 MCP 工具 · 540+ API 方法 · 1023+ CMDB 端点 -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -26,7 +26,7 @@ FortiGate MCP Server 通过 [Model Context Protocol](https://modelcontextprotoco
 
 基于 **全异步 Python** 构建，支持持久化 HTTP 连接池，安全优先默认配置。
 
-**已覆盖 FortiOS 8.0 全部四大类 API：**
+**已覆盖 FortiOS 7.6.7 / 8.0 全部四大类 API：**
 
 | API 类 | 路径 | 方法数 |
 |--------|------|--------|
@@ -179,7 +179,7 @@ uv pip install -e .
 }
 ```
 
-> 基于 FortiOS 8.0 适配开发，其他版本 API 可能存在差异，使用前请自行验证。
+> 基于 FortiOS 7.6.7 / 8.0 适配开发，支持版本自动检测。其他版本 API 可能存在差异，使用前请自行验证。
 
 ### 配置字段说明
 
@@ -187,6 +187,7 @@ uv pip install -e .
 |------|------|
 | `fortigate.devices` | 管理的 FortiGate 设备列表，每台设备一个命名字段 |
 | `fortigate.devices.<name>.api_token` | FortiGate 设备本身的 API Token（在 FortiGate 上生成）。**优先于 username/password**，两者同时配置时以 api_token 为准 |
+| `fortigate.devices.<name>.os_version` | (可选) FortiOS 版本号，如 `"7.6.7"`。不填则首次连接时自动检测并缓存 |
 | `fortigate.devices.<name>.username` / `password` | 用户名密码认证（备选，推荐用 api_token） |
 | `auth.api_tokens` | **MCP Server 认证 Token 列表**，客户端连接时携带，服务端验证 |
 | `auth.api_tokens[].name` | Token 名称/标签，用于识别使用者（如 `hermes-local`、`张三-claude`） |
