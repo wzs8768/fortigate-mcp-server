@@ -571,7 +571,7 @@ OpenClaw (use `rejectUnauthorized` field; `mcp.servers` block at end of `opencla
 ### Generic CMDB Tools (4)
 `cmdb_list` `cmdb_get` `cmdb_create` `cmdb_update` `cmdb_delete` — Covers ALL 1023+ FortiOS CMDB endpoints
 
-> Path format: All CMDB operations use `/` separator (e.g. `firewall/addrgrp`, `firewall.service/custom`). The FortiOS API URL always uses `/`; `.` notation is not supported.
+> Path format: Most modules use `/` separator (e.g. `firewall/addrgrp`, `router/bgp`, `system/global`). **A few composite modules require `.`** (e.g. `system.snmp/sysinfo`, `firewall.service/custom`, `vpn.ipsec/phase1-interface`, `log.disk/filter`). The MCP server auto-normalizes paths: slash-style input (e.g. `system/snmp/sysinfo`) is converted to the correct dot-style path automatically — both notations work. The full list of 43 dot-path composite modules lives in `DOT_PATH_MODULES` in `fortigate.py`.
 
 ### Firewall Monitoring (6)
 `monitor_firewall_policy` `monitor_firewall_policy_lookup` `monitor_firewall_sessions` `monitor_firewall_acl` `monitor_firewall_acl6`

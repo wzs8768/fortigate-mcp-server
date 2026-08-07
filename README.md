@@ -546,7 +546,7 @@ OpenClaw（需使用 `rejectUnauthorized` 字段，`mcp.servers` 块放在 `open
 ### CMDB 通用 CRUD (5)
 `cmdb_list` `cmdb_get` `cmdb_create` `cmdb_update` `cmdb_delete`
 
-> 路径格式：所有 CMDB 操作均使用 `/` 分隔符（如 `firewall/addrgrp`，`firewall.service/custom`）。FortiOS API URL 始终使用 `/`，不支持 `.` 表示法。
+> 路径格式：绝大多数模块用 `/` 分隔（如 `firewall/addrgrp`、`router/bgp`、`system/global`）。**少数复合模块必须用 `.`**（如 `system.snmp/sysinfo`、`firewall.service/custom`、`vpn.ipsec/phase1-interface`、`log.disk/filter`）。MCP 已内置自动归一化：传入斜杠写法（如 `system/snmp/sysinfo`）会自动转换为正确的点号路径，两种写法都可用。完整 43 个点号复合模块清单见 `fortigate.py` 中 `DOT_PATH_MODULES`。
 
 ### 其他 (4)
 `health_check` `get_server_info` `get_alertemail_setting` `get_endpoint_control_settings`

@@ -125,8 +125,69 @@ class TestCmdBPathFormat:
             return await orig(m, e, data=data, vdom=vdom)
         api._make_request = spy
 
-        await api.cmdb_request("GET", "firewall.addrgrp")
-        assert "cmdb/firewall.addrgrp" in captured
+        # Composite module: dot notation passes through untouched
+        await api.cmdb_request("GET", "firewall.service/custom")
+        assert "cmdb/firewall.service/custom" in captured
+
+    @pytest.mark.asyncio
+    async def test_composite_module_slash_auto_converted(self):
+        """Slash-style paths for composite modules must be normalized to dot-style."""
+        from src.fortigate_mcp.config.models import FortiGateDeviceConfig
+        from src.fortigate_mcp.core.fortigate import FortiGateAPI
+
+        captured = None
+        config = FortiGateDeviceConfig(host="x", api_token="x")
+        api = FortiGateAPI(device_id="t", config=config)
+        api._client = MagicMock()
+        api._client.request = AsyncMock()
+        api._client.request.return_value.json.return_value = {"results": []}
+        api._client.request.return_value.status_code = 200
+
+        orig = api._make_request
+        async def spy(m, e, data=None, vdom=None):
+            nonlocal captured; captured = e
+            return await orig(m, e, data=data, vdom=vdom)
+        api._make_request = spy
+
+        # system.snmp is a composite module → slash input must become dot path
+        await api.cmdb_request("GET", "system/snmp/sysinfo")
+        assert "cmdb/system.snmp/sysinfo" in captured
+
+        # vpn.ssl.web is a 3-segment composite module
+        await api.cmdb_request("GET", "vpn/ssl/web/portal")
+        assert "cmdb/vpn.ssl.web/portal" in captured
+
+    @pytest.mark.asyncio
+    async def test_regular_module_slash_stays_slash(self):
+        """Regular modules (firewall/addrgrp, system/global) must NOT be dot-converted."""
+        from src.fortigate_mcp.config.models import FortiGateDeviceConfig
+        from src.fortigate_mcp.core.fortigate import FortiGateAPI
+
+        captured = None
+        config = FortiGateDeviceConfig(host="x", api_token="x")
+        api = FortiGateAPI(device_id="t", config=config)
+        api._client = MagicMock()
+        api._client.request = AsyncMock()
+        api._client.request.return_value.json.return_value = {"results": []}
+        api._client.request.return_value.status_code = 200
+
+        orig = api._make_request
+        async def spy(m, e, data=None, vdom=None):
+            nonlocal captured; captured = e
+            return await orig(m, e, data=data, vdom=vdom)
+        api._make_request = spy
+
+        # firewall.addrgrp is NOT a composite module → slash path stays as-is
+        await api.cmdb_request("GET", "firewall/addrgrp")
+        assert "cmdb/firewall/addrgrp" in captured
+
+        # Deep slash path on a regular module also stays
+        await api.cmdb_request("GET", "router/bgp/neighbor")
+        assert "cmdb/router/bgp/neighbor" in captured
+
+        # Already-dot input on a composite module passes through unchanged
+        await api.cmdb_request("GET", "system.snmp/community")
+        assert "cmdb/system.snmp/community" in captured
 
     @pytest.mark.asyncio
     async def test_delete_slash_path(self):

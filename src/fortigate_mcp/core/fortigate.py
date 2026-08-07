@@ -269,6 +269,57 @@ class FortiGateAPI:
             self.logger.error(f"Connection test failed: {e}")
             return False
 
+    # FortiOS "composite modules" whose CMDB path uses a DOT separator
+    # between module and sub-module (e.g. system.snmp/sysinfo, firewall.service/custom).
+    # Regular modules use "/" (firewall/addrgrp, router/bgp, system/global).
+    # Derived from FortiOS 7.6.7 & 8.0.0 OpenAPI docs — identical in both.
+    DOT_PATH_MODULES: frozenset[str] = frozenset({
+        "firewall.ipmacbinding", "firewall.schedule", "firewall.service", "firewall.shaper",
+        "firewall.ssh", "firewall.ssl", "firewall.wildcard-fqdn",
+        "log.disk", "log.fortianalyzer", "log.fortianalyzer-cloud", "log.fortianalyzer2",
+        "log.fortianalyzer3", "log.fortiguard", "log.memory", "log.null-device",
+        "log.syslogd", "log.syslogd2", "log.syslogd3", "log.syslogd4",
+        "log.tacacs+accounting", "log.tacacs+accounting2", "log.tacacs+accounting3",
+        "log.webtrends",
+        "switch-controller.acl", "switch-controller.auto-config", "switch-controller.initial-config",
+        "switch-controller.ptp", "switch-controller.qos", "switch-controller.security-policy",
+        "system.3g-modem", "system.autoupdate", "system.dhcp", "system.dhcp6", "system.lldp",
+        "system.replacemsg", "system.security-rating", "system.snmp",
+        "telemetry-controller.application",
+        "vpn.certificate", "vpn.ipsec", "vpn.ssl", "vpn.ssl.web",
+        "wireless-controller.hotspot20",
+    })
+
+    @staticmethod
+    def normalize_cmdb_path(path: str) -> str:
+        """Convert a slash-style path to the exact FortiOS URL path.
+
+        FortiOS uses '/' for most modules (firewall/addrgrp) but a DOT for a
+        fixed set of composite modules (system.snmp/sysinfo, firewall.service/custom).
+        This accepts BOTH styles and normalizes: 'system/snmp/sysinfo' →
+        'system.snmp/sysinfo', while 'firewall/addrgrp' stays unchanged.
+
+        Args:
+            path: CMDB path in either slash or dot notation.
+
+        Returns:
+            Normalized path with correct dot placement for composite modules.
+        """
+        clean = path.strip('/')
+        parts = clean.split('/')
+        # Match the LONGEST composite module first (most specific):
+        # vpn/ssl/web/portal → vpn.ssl.web (3 segments), not vpn.ssl (2 segments)
+        if len(parts) >= 3:
+            candidate3 = f"{parts[0]}.{parts[1]}.{parts[2]}"
+            if candidate3 in FortiGateAPI.DOT_PATH_MODULES:
+                return f"{candidate3}/{'/'.join(parts[3:])}"
+        if len(parts) >= 2:
+            candidate = f"{parts[0]}.{parts[1]}"
+            if candidate in FortiGateAPI.DOT_PATH_MODULES:
+                return f"{candidate}/{'/'.join(parts[2:])}"
+        # Already dot-style or a regular module — pass through
+        return clean
+
     async def cmdb_request(
         self,
         method: str,
@@ -281,6 +332,9 @@ class FortiGateAPI:
 
         This is the universal entry point for ALL CMDB operations, covering
         every endpoint in the FortiOS 8.0.0 Configuration API (1023+ endpoints).
+        The path is normalized automatically: composite modules such as
+        system.snmp and firewall.service accept either 'system/snmp/sysinfo'
+        or 'system.snmp/sysinfo' — both resolve to the correct dot-style URL.
 
         Args:
             method: HTTP method (GET, POST, PUT, DELETE)
@@ -310,9 +364,13 @@ class FortiGateAPI:
 
             # Update DNS settings
             api.cmdb_request("PUT", "system/dns", data={...})
+
+            # SNMP settings — composite module, slash style is auto-converted:
+            api.cmdb_request("GET", "system/snmp/sysinfo")   # → system.snmp/sysinfo
+            api.cmdb_request("GET", "system.snmp/community") # dot style also works
         """
         # S3: validate path to prevent traversal attacks
-        clean_path = path.strip('/')
+        clean_path = self.normalize_cmdb_path(path)
         if '..' in clean_path:
             raise ValueError(f"Invalid CMDB path: {path} — path traversal not allowed")
         if not re.match(r'^[a-z][a-z0-9._/-]*$', clean_path):
