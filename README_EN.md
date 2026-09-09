@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 7.6.7 / 8.0.0 REST API Management Server — 279 MCP Tools · 540+ API Methods · 1023+ CMDB Endpoints -->
+<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 8.0.0 REST API Management Server — 283 MCP Tools · 540+ API Methods · 1023+ CMDB Endpoints -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/MCP-1.0-green?style=flat-square"/>
   <img src="https://img.shields.io/badge/API_Methods-540+-blue?style=flat-square"/>
-  <img src="https://img.shields.io/badge/MCP_Tools-279+-orange?style=flat-square"/>
+  <img src="https://img.shields.io/badge/MCP_Tools-283+-orange?style=flat-square"/>
   <img src="https://img.shields.io/badge/Modules-129+-purple?style=flat-square"/>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"/>
 </p>
@@ -30,7 +30,7 @@ FortiGate MCP Server exposes FortiGate firewall management capabilities via the 
 
 Built with **fully asynchronous Python**, featuring persistent HTTP connection pooling and security-first defaults.
 
-**Covers all four FortiOS 7.6.7 / 8.0.0 API categories:**
+**Covers all four FortiOS 7.4.12 / 7.6.7 / 8.0.0 API categories:**
 
 | API Category | Path | Methods |
 |-------------|------|---------|
@@ -183,7 +183,7 @@ Create `config/config.json` (path: `<project-root>/config/config.json`):
 }
 ```
 
-> Developed for FortiOS 7.6.7 / 8.0.0 with automatic version detection. Other versions may differ — verify before use.
+> Developed for FortiOS 7.4.12 / 7.6.7 / 8.0.0 with automatic version detection. Other versions may differ — verify before use.
 
 ### Config Fields
 
@@ -476,9 +476,9 @@ OpenClaw (use `rejectUnauthorized` field; `mcp.servers` block at end of `opencla
 
 ---
 
-## MCP Tools (279)
+## MCP Tools (283)
 
-> Representative tools listed below. All 279 tools cover 1023+ FortiOS API endpoints, including generic CMDB CRUD, log queries, monitoring, etc.
+> Representative tools listed below. All 283 tools cover 1023+ FortiOS API endpoints, including generic CMDB CRUD, log queries, monitoring, etc.
 
 ### Device Management (7)
 `list_devices` `get_device_status` `test_device_connection` `add_device` `remove_device` `discover_vdoms` `list_vdoms`
@@ -559,9 +559,10 @@ OpenClaw (use `rejectUnauthorized` field; `mcp.servers` block at end of `opencla
 `get_routing_table` `list_identity_based_routes` `create/delete_identity_based_route`
 `monitor_router_ipv4` `monitor_router_ipv6` `monitor_router_bgp_neighbors` `monitor_router_bgp_paths`
 
-### Monitoring (20)
+### Monitoring (24)
 `monitor_system_status` `monitor_system_resource_usage` `monitor_system_performance_status` `monitor_system_firmware`
 `monitor_system_interface` `monitor_system_available_interfaces` `monitor_system_current_admins` `monitor_system_vm_information`
+`monitor_system_sensors` `monitor_system_ha_status` `monitor_system_storage` `monitor_system_ntp_status`
 `monitor_license_status` `monitor_registration_forticloud_status` `monitor_fortiguard_service_stats`
 `monitor_fortiview_realtime_stats` `monitor_geoip_query` `monitor_network_reverse_ip_lookup`
 `monitor_network_dns_latency` `monitor_network_arp` `monitor_network_lldp_neighbors`

@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 7.6.7 / 8.0.0 REST API 管理服务器 — 279 MCP 工具 · 540+ API 方法 · 1023+ CMDB 端点 -->
+<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 8.0.0 REST API 管理服务器 — 283 MCP 工具 · 540+ API 方法 · 1023+ CMDB 端点 -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/MCP-1.0-green?style=flat-square"/>
   <img src="https://img.shields.io/badge/API方法-540+-blue?style=flat-square"/>
-  <img src="https://img.shields.io/badge/MCP工具-279+-orange?style=flat-square"/>
+  <img src="https://img.shields.io/badge/MCP工具-283+-orange?style=flat-square"/>
   <img src="https://img.shields.io/badge/覆盖模块-129+-purple?style=flat-square"/>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"/>
 </p>
@@ -30,7 +30,7 @@ FortiGate MCP Server 通过 [Model Context Protocol](https://modelcontextprotoco
 
 基于 **全异步 Python** 构建，支持持久化 HTTP 连接池，安全优先默认配置。
 
-**已覆盖 FortiOS 7.6.7 / 8.0.0 全部四大类 API：**
+**已覆盖 FortiOS 7.4.12 / 7.6.7 / 8.0.0 全部四大类 API：**
 
 | API 类 | 路径 | 方法数 |
 |--------|------|--------|
@@ -183,7 +183,7 @@ uv pip install -e .
 }
 ```
 
-> 基于 FortiOS 7.6.7 / 8.0.0 适配开发，支持版本自动检测。其他版本 API 可能存在差异，使用前请自行验证。
+> 基于 FortiOS 7.4.12 / 7.6.7 / 8.0.0 适配开发，支持版本自动检测。其他版本 API 可能存在差异，使用前请自行验证。
 
 ### 配置字段说明
 
@@ -429,9 +429,9 @@ OpenClaw（需使用 `rejectUnauthorized` 字段，`mcp.servers` 块放在 `open
 
 ---
 
-## MCP 工具列表（279）
+## MCP 工具列表（283）
 
-> 以下列出代表性工具，完整 279 个工具覆盖 1023+ FortiOS API 端点，含 CMDB 通用 CRUD、日志查询、监控等。
+> 以下列出代表性工具，完整 283 个工具覆盖 1023+ FortiOS API 端点，含 CMDB 通用 CRUD、日志查询、监控等。
 
 ### 设备管理 (7)
 `list_devices` `get_device_status` `test_device_connection` `add_device` `remove_device` `discover_vdoms` `list_vdoms`
@@ -518,7 +518,7 @@ OpenClaw（需使用 `rejectUnauthorized` 字段，`mcp.servers` 块放在 `open
 ### 日志 (12)
 `get_log_setting` `update_log_setting` `get_log_disk_setting` `update_log_disk_setting` `get_log_fortianalyzer_setting` `update_log_fortianalyzer_setting` `get_log_syslogd_setting` `update_log_syslogd_setting` `get_logs` `get_logs_raw` `monitor_log_current_disk_usage` `monitor_log_fortianalyzer`
 
-### 监控 (42)
+### 监控 (46)
 
 **VPN 监控：** `monitor_vpn_ipsec` `monitor_vpn_ipsec_connection_count` `monitor_vpn_ssl` `monitor_vpn_ssl_stats`
 
@@ -532,6 +532,9 @@ OpenClaw（需使用 `rejectUnauthorized` 字段，`mcp.servers` 块放在 `open
 
 **系统：** `monitor_system_status` `monitor_system_resource_usage` `monitor_system_performance_status` `monitor_system_interface` `monitor_system_current_admins` `monitor_system_firmware` `monitor_system_vm_information` `monitor_system_available_interfaces`
 > `monitor_system_resource_usage` 支持 `scope` 参数：`"current"`（默认，仅最新快照）| `"global"`（全量历史）
+
+**巡检（硬件/HA/存储/NTP）：** `monitor_system_sensors` `monitor_system_ha_status` `monitor_system_storage` `monitor_system_ntp_status`
+> `monitor_system_sensors` 读取 IPMC 硬件传感器（风扇/电源/温度/电压/电流/功率），可选 `sensor_type` 过滤，`alarm:true` 即异常——仅物理设备有数据，VM 返回 404。`monitor_system_ha_status` 返回 HA 对端角色/优先级/failover + 成员统计（单机为空列表）。用于例行巡检。
 
 **网络：** `monitor_network_arp` `monitor_network_lldp_neighbors` `monitor_network_dns_latency` `monitor_network_reverse_ip_lookup`
 
