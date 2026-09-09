@@ -27,7 +27,8 @@ classifiers = [
 keywords = ["fortigate", "mcp", "fastmcp", "firewall", "management", "automation"]
 requires-python = ">=3.11"
 dependencies = [
-    "mcp>=1.0.0",
+    # mcp>=1.0,<2 — mcp 2.0 removed mcp.server.fastmcp (FastMCP); keep <2 until code migrates to MCPServer
+    "mcp>=1.0.0,<2",
     "httpx>=0.24.0",
     "pydantic>=2.0.0",
     "fastapi>=0.104.0",

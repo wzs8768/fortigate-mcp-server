@@ -272,7 +272,10 @@ class FortiGateAPI:
     # FortiOS "composite modules" whose CMDB path uses a DOT separator
     # between module and sub-module (e.g. system.snmp/sysinfo, firewall.service/custom).
     # Regular modules use "/" (firewall/addrgrp, router/bgp, system/global).
-    # Derived from FortiOS 7.6.7 & 8.0.0 OpenAPI docs — identical in both.
+    # UNION across FortiOS 7.4.12, 7.6.7 & 8.0.0 OpenAPI docs.
+    # Note: switch-controller.acl/ptp/qos, system.security-rating and
+    # telemetry-controller.application exist only in 7.6.0+ (not in 7.4.12);
+    # they are kept so 7.6.x/8.0.x slash-style calls still normalize correctly.
     DOT_PATH_MODULES: frozenset[str] = frozenset({
         "firewall.ipmacbinding", "firewall.schedule", "firewall.service", "firewall.shaper",
         "firewall.ssh", "firewall.ssl", "firewall.wildcard-fqdn",
@@ -2775,6 +2778,57 @@ class FortiGateAPI:
     async def monitor_system_vm_information(self) -> dict[str, Any]:
         """Get VM hypervisor / platform info."""
         return await self._make_monitor_request("system/vm-information")
+
+    # --- Inspection / health-check monitor (added for routine inspection) ---
+    async def monitor_system_sensors(self, sensor_type: str | None = None,
+                                     vdom: str | None = None) -> dict[str, Any]:
+        """Read physical hardware sensors (IPMC): fan, power (PSU), temperature,
+        voltage, amperage, wattage. Physical devices only; VM returns not-found.
+
+        The underlying monitor API (system/sensor-info) has no query parameters,
+        so filtering by type is done client-side after retrieval.
+
+        Args:
+            sensor_type: filter result by sensor type: "fan" | "power" |
+                "temperature" | "voltage" | "amperage" | "wattage".
+                None = all sensors returned.
+            vdom: Virtual Domain (optional)
+        """
+        raw = await self._make_monitor_request("system/sensor-info", vdom=vdom)
+        if not sensor_type:
+            return raw
+        # sensor-info returns array-like results: [{id,name,type,value,alarm,thresholds}, ...]
+        results = raw.get("results", [])
+        if isinstance(results, list):
+            filtered = [s for s in results if s.get("type") == sensor_type]
+            return {**raw, "results": filtered, "filtered_by_type": sensor_type}
+        return raw
+
+    async def monitor_system_ha_status(self, vdom: str | None = None) -> dict[str, Any]:
+        """Get HA cluster health: peer(s) config/status + member statistics.
+
+        Combines monitor endpoints system/ha-peer (roles, priority, failover
+        status) and system/ha-statistics (member hostname/serial/uptime/sessions)
+        into one inspection view. Note: system/cluster/state is SLBC-chassis
+        only and 404s on regular HA / standalone units, so it is not used here.
+        """
+        try:
+            peers = await self._make_monitor_request("system/ha-peer", vdom=vdom)
+        except Exception:
+            peers = {"error": "ha-peer unavailable"}
+        try:
+            stats = await self._make_monitor_request("system/ha-statistics", vdom=vdom)
+        except Exception:
+            stats = {"error": "ha-statistics unavailable"}
+        return {"ha_status": "ok", "ha_peers": peers, "ha_statistics": stats}
+
+    async def monitor_system_storage(self, vdom: str | None = None) -> dict[str, Any]:
+        """Get storage device usage (disk partitions beyond log disk)."""
+        return await self._make_monitor_request("system/storage", vdom=vdom)
+
+    async def monitor_system_ntp_status(self, vdom: str | None = None) -> dict[str, Any]:
+        """Get NTP sync status (clock sync state, server, stratum)."""
+        return await self._make_monitor_request("system/ntp/status", vdom=vdom)
 
     # --- Firewall monitor ---
     async def monitor_firewall_policy(self, vdom: str | None = None) -> dict[str, Any]:

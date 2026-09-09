@@ -2362,6 +2362,38 @@ Returns: Update confirmation.""")
     ):
         return await t.resource.monitor_system_vm_information(device_id)
 
+    @mcp.tool(description="Read physical hardware sensors (IPMC): fan, power (PSU), temperature, voltage, amperage, wattage. "
+                          "Physical devices only — VM returns not-found. Optionally filter by sensor_type (fan/power/temperature/voltage/amperage/wattage). "
+                          "Use for routine inspection of power supply and fan health (check 'alarm' field).")
+    async def monitor_system_sensors(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        sensor_type: Annotated[str | None, Field(description="Filter by sensor type: fan, power, temperature, voltage, amperage, wattage. None = all sensors.", default=None)] = None,
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.resource.monitor_system_sensors(device_id, sensor_type, vdom)
+
+    @mcp.tool(description="Get HA cluster health: HA peer configuration/status (role, priority, failover) "
+                          "+ member statistics (hostname, serial, uptime, sessions). For HA-paired devices inspection.")
+    async def monitor_system_ha_status(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.resource.monitor_system_ha_status(device_id, vdom)
+
+    @mcp.tool(description="Get storage device usage (disk partitions beyond log disk)")
+    async def monitor_system_storage(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.resource.monitor_system_storage(device_id, vdom)
+
+    @mcp.tool(description="Get NTP sync status (clock sync state, server, stratum)")
+    async def monitor_system_ntp_status(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.resource.monitor_system_ntp_status(device_id, vdom)
+
     @mcp.tool(description="Get firewall policy statistics and hit counts")
     async def monitor_firewall_policy(
         device_id: Annotated[str, Field(description="FortiGate device identifier")],

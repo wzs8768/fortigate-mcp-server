@@ -895,6 +895,44 @@ class ResourceTools(FortiGateTool):
         except Exception as e:
             return self._handle_error("monitor VM platform info", device_id, e)
 
+    async def monitor_system_sensors(self, device_id: str, sensor_type: str | None = None,
+                                     vdom: str | None = None) -> list[Content]:
+        """Read physical hardware sensors (IPMC): fan, power (PSU), temperature, voltage.
+        Physical devices only — VM returns not-found. Filter client-side by sensor_type."""
+        try:
+            self._validate_device_exists(device_id)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.monitor_system_sensors(sensor_type=sensor_type, vdom=vdom)
+            return self._format_response(data, "monitor_system_sensors")
+        except Exception as e:
+            return self._handle_error("monitor hardware sensors", device_id, e)
+
+    async def monitor_system_ha_status(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.monitor_system_ha_status(vdom=vdom)
+            return self._format_response(data, "monitor_system_ha_status")
+        except Exception as e:
+            return self._handle_error("monitor HA cluster status", device_id, e)
+    async def monitor_system_storage(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.monitor_system_storage(vdom=vdom)
+            return self._format_response(data, "monitor_system_storage")
+        except Exception as e:
+            return self._handle_error("monitor storage usage", device_id, e)
+
+    async def monitor_system_ntp_status(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.monitor_system_ntp_status(vdom=vdom)
+            return self._format_response(data, "monitor_system_ntp_status")
+        except Exception as e:
+            return self._handle_error("monitor NTP sync status", device_id, e)
+
     async def monitor_firewall_policy(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
