@@ -284,6 +284,15 @@ docker compose up -d
 
 ### MCP 客户端集成
 
+> **💡 自签名证书两种处理方式**（二选一）：
+> 1. **客户端跳过验证**：配置 `ssl_verify: false` / `NODE_TLS_REJECT_UNAUTHORIZED=0` / `rejectUnauthorized: false`（见下方示例）。
+> 2. **导入证书到受信任根存储（推荐）**：
+>    - 下载证书：`scp user@<服务器IP>:~/fortigate-mcp-server/certs/server.crt ./`
+>    - **Windows**：双击 → 安装证书 → 受信任的根证书颁发机构
+>    - **macOS**：双击 → 钥匙串 → 始终信任
+>    - **Linux**：`sudo cp server.crt /usr/local/share/ca-certificates/ && sudo update-ca-certificates`
+>    导入后客户端保持 `ssl_verify: true` 即可。
+
 #### 场景一：客户端与服务器在同一台机器（STDIO 模式）
 
 客户端直接启动进程，无需预运行服务：
