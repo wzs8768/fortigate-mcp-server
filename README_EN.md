@@ -285,14 +285,9 @@ docker compose up -d
 
 ### MCP Client Integration
 
-> **💡 Two ways to handle self-signed certs** (pick one):
-> 1. **Skip verification**: `ssl_verify: false` / `NODE_TLS_REJECT_UNAUTHORIZED=0` / `rejectUnauthorized: false` (see examples below).
-> 2. **Import cert to trusted root store (recommended)**:
->    - Download: `scp user@<server-ip>:~/fortigate-mcp-server/certs/server.crt ./`
->    - **Windows**: double-click → Install → Trusted Root Certification Authorities
->    - **macOS**: double-click → Keychain → Always Trust
->    - **Linux**: `sudo cp server.crt /usr/local/share/ca-certificates/ && sudo update-ca-certificates`
->    After import, keep `ssl_verify: true` — HTTPS just works.
+> **💡 Two ways to handle self-signed certificates** (pick one)
+> 1. **Skip verification**: `ssl_verify: false` / `NODE_TLS_REJECT_UNAUTHORIZED=0` / `rejectUnauthorized: false`
+> 2. **Import to trusted root store (recommended)**: download `certs/server.crt` → double-click to install to "Trusted Root Certification Authorities" (Windows) / Keychain "Always Trust" (macOS) / `/usr/local/share/ca-certificates/` + `update-ca-certificates` (Linux). Keep `ssl_verify: true` after import.
 
 #### Scenario 1: Client & Server on Same Machine (STDIO)
 
