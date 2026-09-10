@@ -240,6 +240,10 @@ openssl req -x509 -newkey rsa:4096 \
   -addext "subjectAltName=IP:<server-ip>"
 ```
 
+> **SAN note**: `subjectAltName` must match the actual access address
+> - Access by IP: `subjectAltName=IP:192.168.1.10`
+> - Access by domain: `subjectAltName=DNS:mcp.example.local`
+
 Then start HTTPS:
 
 ```bash
@@ -290,6 +294,9 @@ cp contrib/fortigate-mcp.service ~/.config/systemd/user/
 # Edit the ExecStart line to set --transport / --ssl-cert / --ssl-key as needed
 systemctl --user daemon-reload
 systemctl --user enable --now fortigate-mcp
+
+# To start on boot without user login
+sudo loginctl enable-linger $USER
 ```
 
 ---

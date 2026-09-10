@@ -240,6 +240,10 @@ openssl req -x509 -newkey rsa:4096 \
   -addext "subjectAltName=IP:<server-ip>"
 ```
 
+> **SAN 说明**：`subjectAltName` 必须与实际访问地址匹配
+> - 使用 IP 访问：`subjectAltName=IP:192.168.1.10`
+> - 使用域名访问：`subjectAltName=DNS:mcp.example.local`
+
 然后启动 HTTPS：
 
 ```bash
@@ -290,6 +294,9 @@ cp contrib/fortigate-mcp.service ~/.config/systemd/user/
 # 编辑 ExecStart 行，按需设置 --transport / --ssl-cert / --ssl-key
 systemctl --user daemon-reload
 systemctl --user enable --now fortigate-mcp
+
+# 如需服务器重启后无需用户登录即可启动
+sudo loginctl enable-linger $USER
 ```
 
 ---
