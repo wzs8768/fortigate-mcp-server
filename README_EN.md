@@ -156,33 +156,6 @@ Complete multi-FortiGate / multi-MCP-Client example:
 }
 ```
 
-> Developed for FortiOS 7.4.12 / 7.6.7 / 8.0.0 with automatic version detection. Other versions may differ — verify before use.
-
-### Configuration Details
-
-`fortigate.devices` can configure multiple FortiGate devices, each with its own name and API Token.
-
-For example:
-
-```text
-FGT-HQ
-FGT-BRANCH
-FGT-LAB
-```
-
-`auth.api_tokens` can configure multiple MCP Client Tokens (e.g., for Hermes, ChatGPT, Claude, or other clients).
-
-The two token types serve different purposes:
-
-| Configuration | Purpose |
-| ------------- | ------- |
-| `fortigate.devices.<name>.api_token` | MCP Server → FortiGate |
-| `auth.api_tokens[].token` | MCP Client → MCP Server |
-
-Adding a new FortiGate only requires adding a device object in `fortigate.devices`; adding a new MCP Client only requires adding a token in `auth.api_tokens`.
-
-> **Note**: `fortigate.devices.<name>.verify_ssl` controls **MCP Server → FortiGate** HTTPS certificate verification; whether the MCP Client trusts `server.crt` belongs to **MCP Client → MCP Server** HTTPS certificate verification — these are two separate configurations.
-
 ### Config Fields
 
 | Field | Description |

@@ -156,33 +156,6 @@ uv pip install -e .
 }
 ```
 
-> 基于 FortiOS 7.4.12 / 7.6.7 / 8.0.0 适配开发，支持版本自动检测。其他版本 API 可能存在差异，使用前请自行验证。
-
-### 配置说明
-
-`fortigate.devices` 可以配置多台 FortiGate，每台设备使用独立名称和 API Token。
-
-例如：
-
-```text
-FGT-HQ
-FGT-BRANCH
-FGT-LAB
-```
-
-`auth.api_tokens` 可以配置多个 MCP Client Token，例如分别给 Hermes、ChatGPT、Claude 或其他客户端使用。
-
-两类 Token 的用途不同：
-
-| 配置                                   | 用途                      |
-| ------------------------------------ | ----------------------- |
-| `fortigate.devices.<name>.api_token` | MCP Server → FortiGate  |
-| `auth.api_tokens[].token`            | MCP Client → MCP Server |
-
-新增 FortiGate 时，只需要在 `fortigate.devices` 中增加一个设备对象；新增 MCP Client 时，只需要在 `auth.api_tokens` 中增加一个 Token。
-
-> **注意**：`fortigate.devices.<name>.verify_ssl` 控制的是 **MCP Server → FortiGate** 的 HTTPS 证书校验；MCP Client 是否信任 `server.crt`，属于 **MCP Client → MCP Server** 的 HTTPS 证书校验，两者不是同一个配置。
-
 ### 配置字段说明
 
 | 字段 | 说明 |
