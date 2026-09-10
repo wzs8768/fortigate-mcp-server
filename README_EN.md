@@ -396,20 +396,6 @@ Generic CMDB / Monitor tools provide access to many unsealed FortiOS API endpoin
 
 ---
 
-## Development
-
-```bash
-pytest tests/
-ruff check src/
-```
-
-CI checks:
-
-- Ruff
-- Pytest
-- Python Package Build
-- Docker Build
-
 ---
 
 ## License

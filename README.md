@@ -396,20 +396,6 @@ monitor_request
 
 ---
 
-## 开发
-
-```bash
-pytest tests/
-ruff check src/
-```
-
-CI 主要检查：
-
-- Ruff
-- Pytest
-- Python Package Build
-- Docker Build
-
 ---
 
 ## License
