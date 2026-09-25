@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  fortigate-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fortigate-mcp
+    ports:
+      - "${MCP_HTTP_PORT:-8815}:8815"
+      # HTTPS（仅在使用自签名证书时启用）
+      # - "${MCP_HTTPS_PORT:-8814}:8814"
+    environment:
+      - FORTIGATE_HOST=${FORTIGATE_HOST:-}
+      - FORTIGATE_API_TOKEN=${FORTIGATE_API_TOKEN:-}
+      - MCP_AUTH_TOKEN=${MCP_AUTH_TOKEN:-}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./config:/app/config:ro
+      - ./certs:/app/certs:ro
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8815/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - fgtmcp-net
+
+networks:
+  fgtmcp-net:
+    driver: bridge
