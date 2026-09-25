@@ -1,0 +1,1 @@
+"""FortiGate MCP Server 单元测试 — 覆盖配置/设备管理/API客户端/格式化/工具模块"""
