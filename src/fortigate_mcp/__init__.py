@@ -1,5 +1,5 @@
 """
-FortiGate MCP — FortiOS 8.0.2 / 8.0.1 / 8.0.0 / 7.6.7 / 7.4.12 REST API 管理服务器
+FortiGate MCP — FortiOS 8.0.2 / 8.0.1 / 8.0.0 / 7.6.8 / 7.6.7 / 7.4.12 REST API 管理服务器
 
 提供 365 个 MCP 工具，覆盖防火墙策略/地址对象/服务/调度/安全 Profile/VPN/
 用户认证/路由/NAT/流量整形/证书/日志等管理。
@@ -12,7 +12,7 @@ FortiGate MCP — FortiOS 8.0.2 / 8.0.1 / 8.0.0 / 7.6.7 / 7.4.12 REST API 管理
 - server_http.py — HTTP/HTTPS（SSE + Streamable HTTP 同端口共存）
 """
 
-__version__ = "2.4.0"
+__version__ = "2.5.0"
 __author__ = "FortiGate MCP Team"
 __email__ = "support@fortimcp.dev"
 

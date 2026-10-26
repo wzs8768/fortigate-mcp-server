@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 8.0.0 / 8.0.1 / 8.0.2 REST API 管理服务器 — 365 MCP 工具 · 1650 API 端点 -->
+<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 7.6.8 / 8.0.0 / 8.0.1 / 8.0.2 REST API 管理服务器 — 365 MCP 工具 · 1650 API 端点 -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -31,7 +31,7 @@
 - STDIO / Streamable HTTP / SSE，HTTP / HTTPS
 - FortiGate API Token 认证 + MCP Server Bearer Token 认证
 
-已适配 **FortiOS 7.4.12 / 7.6.7 / 8.0.0 / 8.0.1 / 8.0.2**；其他版本可能存在 API 差异，生产环境使用前请先验证。
+已适配 **FortiOS 7.4.12 / 7.6.7 / 7.6.8 / 8.0.0 / 8.0.1 / 8.0.2**；其他版本可能存在 API 差异，生产环境使用前请先验证。
 
 设备版本首次调用时自动探测，无需手工配置。调用某版本不存在的端点时，返回信息会说明它属于哪些版本，
 而不是 FortiOS 原始的 `404` / `500 -651`；`list_api_endpoints` / `get_api_endpoint_schema` / `check_api_compatibility`
@@ -83,7 +83,7 @@ pip install -e .
     "https_port": 8814,
     "http_port": 8815,
     "name": "fortigate-mcp-server",
-    "version": "2.4.0"
+    "version": "2.5.0"
   },
   "fortigate": {
     "devices": {

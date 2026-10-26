@@ -90,7 +90,7 @@ class TestCatalogData:
         versions = api_catalog.supported_versions()
         assert "8.0.2" in versions
         assert versions[-1] == "8.0.2", "8.0.2 must be the newest catalogued release"
-        assert {"7.4.12", "7.6.7", "8.0.0", "8.0.1"} <= set(versions)
+        assert {"7.4.12", "7.6.7", "7.6.8", "8.0.0", "8.0.1"} <= set(versions)
 
     def test_stats_sane(self):
         stats = api_catalog.catalog_stats()
@@ -113,6 +113,27 @@ class TestCatalogData:
     def test_802_composite_modules_match_8_0_1(self):
         """8.0.2 documents the same CMDB module set as 8.0.1."""
         assert api_catalog.composite_modules("8.0.2") == api_catalog.composite_modules("8.0.1")
+
+    def test_768_backports_three_endpoints(self):
+        """7.6.8 introduces three endpoints that 7.6.7 and 8.0.0 do not have.
+
+        They reappear in 8.0.1/8.0.2, so the catalog must list 7.6.8 explicitly
+        rather than assuming the 7.6 branch ends at 7.6.7.
+        """
+        for path in (
+            "/api/v2/cmdb/system/app",
+            "/api/v2/monitor/app/hold-signatures",
+            "/api/v2/monitor/user/firewall/charts",
+        ):
+            versions = api_catalog.endpoint_versions(path)
+            assert "7.6.8" in versions, path
+            assert "7.6.7" not in versions, path
+            assert "8.0.0" not in versions, path
+
+    def test_768_drops_crash_log_clear(self):
+        versions = api_catalog.endpoint_versions("monitor/system/crash-log/clear")
+        assert "7.6.7" in versions
+        assert "7.6.8" not in versions
 
     def test_dot_path_modules_cover_every_version(self):
         """DOT_PATH_MODULES drives path normalisation and must never lag the
@@ -314,7 +335,7 @@ class TestCatalogTools:
         text = (await tools.list_api_endpoints())[0].text
         assert "matches" in text
         assert "cmdb:firewall" in text  # per-module census
-        assert "7.4.12, 7.6.7, 8.0.0, 8.0.1, 8.0.2" in text  # catalog provenance line
+        assert "7.4.12, 7.6.7, 7.6.8, 8.0.0, 8.0.1, 8.0.2" in text  # catalog provenance line
 
     @pytest.mark.asyncio
     async def test_list_8_0_1_only(self, tools):
@@ -424,4 +445,4 @@ class TestVersionDeclarations:
         """Importing the package must not require the data files to be parsed."""
         import src.fortigate_mcp
 
-        assert src.fortigate_mcp.__version__ == "2.4.0"
+        assert src.fortigate_mcp.__version__ == "2.5.0"

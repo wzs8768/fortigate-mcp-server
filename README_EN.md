@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 8.0.0 / 8.0.1 / 8.0.2 REST API Management Server — 365 MCP Tools · 1650 API Endpoints -->
+<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 7.6.8 / 8.0.0 / 8.0.1 / 8.0.2 REST API Management Server — 365 MCP Tools · 1650 API Endpoints -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -31,7 +31,7 @@ Wraps the FortiGate REST API as MCP tools, so Claude, ChatGPT, Hermes, Codex, Cu
 - STDIO / Streamable HTTP / SSE, HTTP / HTTPS
 - FortiGate API Token authentication + MCP Server Bearer Token authentication
 
-Validated against **FortiOS 7.4.12 / 7.6.7 / 8.0.0 / 8.0.1 / 8.0.2**; other releases may differ, so verify before production use.
+Validated against **FortiOS 7.4.12 / 7.6.7 / 7.6.8 / 8.0.0 / 8.0.1 / 8.0.2**; other releases may differ, so verify before production use.
 
 The device's FortiOS version is auto-detected on first use — no manual configuration. Calling an endpoint a
 build does not have says so (and names the releases that do) instead of returning FortiOS' bare
@@ -84,7 +84,7 @@ Create `config/config.json`:
     "https_port": 8814,
     "http_port": 8815,
     "name": "fortigate-mcp-server",
-    "version": "2.4.0"
+    "version": "2.5.0"
   },
   "fortigate": {
     "devices": {
