@@ -1,8 +1,8 @@
 """Tests for the version-aware FortiOS API catalog.
 
-Covers the 8.0.1 update:
-- the shipped catalog lists 8.0.1 and its composite CMDB modules;
-- every endpoint hardcoded in the server is available on 8.0.1;
+Covers the 8.0.2 update:
+- the shipped catalog lists 8.0.2 (newest) and its composite CMDB modules;
+- every endpoint hardcoded in the server is available on 8.0.2;
 - the one real API difference, the removed ``llm`` module, is recorded and
   stays reachable on 8.0.0 through the catalog union;
 - path normalisation and version verdicts behave;
@@ -88,9 +88,9 @@ class TestCatalogData:
 
     def test_supported_versions(self):
         versions = api_catalog.supported_versions()
-        assert "8.0.1" in versions
-        assert versions[-1] == "8.0.1", "8.0.1 must be the newest catalogued release"
-        assert {"7.4.12", "7.6.7", "8.0.0"} <= set(versions)
+        assert "8.0.2" in versions
+        assert versions[-1] == "8.0.2", "8.0.2 must be the newest catalogued release"
+        assert {"7.4.12", "7.6.7", "8.0.0", "8.0.1"} <= set(versions)
 
     def test_stats_sane(self):
         stats = api_catalog.catalog_stats()
@@ -109,6 +109,10 @@ class TestCatalogData:
 
     def test_801_composite_modules_match_8_0_0(self):
         assert api_catalog.composite_modules("8.0.1") == api_catalog.composite_modules("8.0.0")
+
+    def test_802_composite_modules_match_8_0_1(self):
+        """8.0.2 documents the same CMDB module set as 8.0.1."""
+        assert api_catalog.composite_modules("8.0.2") == api_catalog.composite_modules("8.0.1")
 
     def test_dot_path_modules_cover_every_version(self):
         """DOT_PATH_MODULES drives path normalisation and must never lag the
@@ -159,6 +163,16 @@ class TestHardcodedEndpointCompatibility:
         assert not_in_801 == ABSENT_FROM_8_0_1, (
             f"unexpected 8.0.1 coverage gap: {sorted(not_in_801 - ABSENT_FROM_8_0_1)}"
         )
+
+    def test_every_hardcoded_endpoint_is_available_on_8_0_2(self):
+        """8.0.2 documents the same endpoint set as 8.0.1, so nothing the
+        server calls may be missing there either."""
+        not_in_802 = {
+            path for path in _hardcoded_endpoints()
+            if path in api_catalog.endpoints_map()
+            and "8.0.2" not in api_catalog.endpoint_versions(path)
+        }
+        assert not not_in_802, f"unexpected 8.0.2 coverage gap: {sorted(not_in_802)}"
 
     @pytest.mark.parametrize(("path", "oldest"), [
         ("ssh-filter/profile", "7.4.12"),
@@ -224,7 +238,8 @@ class TestVersionCompatibility:
     """Version verdicts, including the 8.0.1-only endpoints."""
 
     def test_new_in_801(self):
-        assert api_catalog.endpoint_versions("router/vrf") == ["8.0.1"]
+        assert api_catalog.endpoint_versions("router/vrf") == ["8.0.1", "8.0.2"]
+        assert api_catalog.check_endpoint("router/vrf", "8.0.2")["supported"] is True
         assert api_catalog.check_endpoint("router/vrf", "8.0.1")["supported"] is True
         assert api_catalog.check_endpoint("router/vrf", "8.0.0")["supported"] is False
 
@@ -299,7 +314,7 @@ class TestCatalogTools:
         text = (await tools.list_api_endpoints())[0].text
         assert "matches" in text
         assert "cmdb:firewall" in text  # per-module census
-        assert "7.4.12, 7.6.7, 8.0.0, 8.0.1" in text  # catalog provenance line
+        assert "7.4.12, 7.6.7, 8.0.0, 8.0.1, 8.0.2" in text  # catalog provenance line
 
     @pytest.mark.asyncio
     async def test_list_8_0_1_only(self, tools):
@@ -409,4 +424,4 @@ class TestVersionDeclarations:
         """Importing the package must not require the data files to be parsed."""
         import src.fortigate_mcp
 
-        assert src.fortigate_mcp.__version__ == "2.1.0"
+        assert src.fortigate_mcp.__version__ == "2.2.0"
