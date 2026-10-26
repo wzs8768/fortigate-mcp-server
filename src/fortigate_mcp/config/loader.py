@@ -84,7 +84,7 @@ def load_config(config_path: str | None = None) -> Config:
         docker_token = os.getenv("FORTIGATE_API_TOKEN")
         if docker_host and docker_token:
             config_data = {
-                "server": {"host": "0.0.0.0", "https_port": 8814, "http_port": 8815, "name": "fortigate-mcp-server", "version": "2.2.0"},
+                "server": {"host": "0.0.0.0", "https_port": 8814, "http_port": 8815, "name": "fortigate-mcp-server", "version": "2.3.0"},
                 "fortigate": {"devices": {"docker": {"host": docker_host, "port": 443, "api_token": docker_token, "verify_ssl": False, "timeout": 30}}},
                 "auth": {"require_auth": True, "api_tokens": [{"name": "docker", "token": os.getenv("MCP_AUTH_TOKEN", "")}]},
                 "logging": {"level": os.getenv("LOG_LEVEL", "INFO"), "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s", "file": "logs/server.log", "console": True},
@@ -164,7 +164,7 @@ def create_example_config() -> dict:
             "host": "0.0.0.0",
             "port": 8814,
             "name": "fortigate-mcp-server",
-            "version": "2.2.0"
+            "version": "2.3.0"
         },
         "fortigate": {
             "devices": {

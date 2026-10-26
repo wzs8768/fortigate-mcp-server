@@ -1,6 +1,6 @@
 """Shared tool registration for FortiGate MCP — used by both STDIO and HTTP servers.
 
-Import this module and call ``register_all_tools(mcp, t)`` to register all 286 MCP tools.
+Import this module and call ``register_all_tools(mcp, t)`` to register all 330 MCP tools.
 The ``t`` parameter is a namespace with tool service attributes:
     t.device, t.firewall, t.network, t.routing, t.virtual_ip,
     t.schedule, t.security, t.resource, t.cmdb, t.catalog
@@ -56,7 +56,7 @@ class _ToolNamespace:
 
 
 def register_all_tools(mcp, t: _ToolNamespace) -> None:
-    """Register all 286 MCP tools on the given FastMCP instance.
+    """Register all 330 MCP tools on the given FastMCP instance.
 
     Args:
         mcp: FastMCP server instance
@@ -899,6 +899,294 @@ any security profile — without it profiles are silently ignored.""")
     # ============================================================
     # DLP tools
     # ============================================================
+    # --- data-type ---
+    @mcp.tool(description="List all DLP data types")
+    async def list_dlp_data_types(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.list_dlp_data_types(device_id, vdom)
+
+    @mcp.tool(description="Get a DLP data type by name")
+    async def get_dlp_data_type(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP data type name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_data_type(device_id, name, vdom)
+
+    @mcp.tool(description="Create a DLP data type")
+    async def create_dlp_data_type(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="DLP data type configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_data_type(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP data type by name")
+    async def update_dlp_data_type(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP data type name")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_data_type(device_id, name, data, vdom)
+
+    @mcp.tool(description="Delete a DLP data type by name")
+    async def delete_dlp_data_type(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP data type name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_data_type(device_id, name, vdom)
+
+    # --- dictionary ---
+    @mcp.tool(description="List all DLP dictionaries")
+    async def list_dlp_dictionaries(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.list_dlp_dictionaries(device_id, vdom)
+
+    @mcp.tool(description="Get a DLP dictionary by name")
+    async def get_dlp_dictionary(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP dictionary name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_dictionary(device_id, name, vdom)
+
+    @mcp.tool(description="Create a DLP dictionary")
+    async def create_dlp_dictionary(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="DLP dictionary configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_dictionary(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP dictionary by name")
+    async def update_dlp_dictionary(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP dictionary name")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_dictionary(device_id, name, data, vdom)
+
+    @mcp.tool(description="Delete a DLP dictionary by name")
+    async def delete_dlp_dictionary(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP dictionary name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_dictionary(device_id, name, vdom)
+
+    # --- exact-data-match ---
+    @mcp.tool(description="List all DLP exact data match (EDM) configurations")
+    async def list_dlp_exact_data_matches(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.list_dlp_exact_data_matches(device_id, vdom)
+
+    @mcp.tool(description="Get a DLP exact data match configuration by name")
+    async def get_dlp_exact_data_match(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Exact data match name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_exact_data_match(device_id, name, vdom)
+
+    @mcp.tool(description="Create a DLP exact data match configuration")
+    async def create_dlp_exact_data_match(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="Exact data match configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_exact_data_match(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP exact data match configuration by name")
+    async def update_dlp_exact_data_match(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Exact data match name")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_exact_data_match(device_id, name, data, vdom)
+
+    @mcp.tool(description="Delete a DLP exact data match configuration by name")
+    async def delete_dlp_exact_data_match(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Exact data match name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_exact_data_match(device_id, name, vdom)
+
+    # --- filepattern ---
+    @mcp.tool(description="List all DLP file patterns")
+    async def list_dlp_filepatterns(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.list_dlp_filepatterns(device_id, vdom)
+
+    @mcp.tool(description="Get a DLP file pattern by ID")
+    async def get_dlp_filepattern(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        filt_id: Annotated[str, Field(description="DLP file pattern ID")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_filepattern(device_id, filt_id, vdom)
+
+    @mcp.tool(description="Create a DLP file pattern")
+    async def create_dlp_filepattern(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="DLP file pattern configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_filepattern(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP file pattern by ID")
+    async def update_dlp_filepattern(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        filt_id: Annotated[str, Field(description="DLP file pattern ID")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_filepattern(device_id, filt_id, data, vdom)
+
+    @mcp.tool(description="Delete a DLP file pattern by ID")
+    async def delete_dlp_filepattern(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        filt_id: Annotated[str, Field(description="DLP file pattern ID")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_filepattern(device_id, filt_id, vdom)
+
+    # --- fp-doc-source ---
+    @mcp.tool(description="List all DLP file pattern document sources")
+    async def list_dlp_fp_doc_sources(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.list_dlp_fp_doc_sources(device_id, vdom)
+
+    @mcp.tool(description="Get a DLP file pattern document source by name")
+    async def get_dlp_fp_doc_source(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Document source name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_fp_doc_source(device_id, name, vdom)
+
+    @mcp.tool(description="Create a DLP file pattern document source")
+    async def create_dlp_fp_doc_source(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="Document source configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_fp_doc_source(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP file pattern document source by name")
+    async def update_dlp_fp_doc_source(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Document source name")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_fp_doc_source(device_id, name, data, vdom)
+
+    @mcp.tool(description="Delete a DLP file pattern document source by name")
+    async def delete_dlp_fp_doc_source(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Document source name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_fp_doc_source(device_id, name, vdom)
+
+    # --- label ---
+    @mcp.tool(description="List all DLP labels")
+    async def list_dlp_labels(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.list_dlp_labels(device_id, vdom)
+
+    @mcp.tool(description="Get a DLP label by name")
+    async def get_dlp_label(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP label name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_label(device_id, name, vdom)
+
+    @mcp.tool(description="Create a DLP label")
+    async def create_dlp_label(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="DLP label configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_label(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP label by name")
+    async def update_dlp_label(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP label name")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_label(device_id, name, data, vdom)
+
+    @mcp.tool(description="Delete a DLP label by name")
+    async def delete_dlp_label(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP label name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_label(device_id, name, vdom)
+
+    # --- sensitivity ---
+    @mcp.tool(description="List all DLP sensitivity levels")
+    async def list_dlp_sensitivities(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.list_dlp_sensitivities(device_id, vdom)
+
+    @mcp.tool(description="Get a DLP sensitivity level by name")
+    async def get_dlp_sensitivity(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Sensitivity level name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_sensitivity(device_id, name, vdom)
+
+    @mcp.tool(description="Create a DLP sensitivity level")
+    async def create_dlp_sensitivity(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="Sensitivity level configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_sensitivity(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP sensitivity level by name")
+    async def update_dlp_sensitivity(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Sensitivity level name")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_sensitivity(device_id, name, data, vdom)
+
+    @mcp.tool(description="Delete a DLP sensitivity level by name")
+    async def delete_dlp_sensitivity(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="Sensitivity level name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_sensitivity(device_id, name, vdom)
+
+    # --- sensor ---
     @mcp.tool(description="List all DLP sensors")
     async def list_dlp_sensors(
         device_id: Annotated[str, Field(description="FortiGate device identifier")],
@@ -906,6 +1194,40 @@ any security profile — without it profiles are silently ignored.""")
     ):
         return await t.security.list_dlp_sensors(device_id, vdom)
 
+    @mcp.tool(description="Get a DLP sensor by name")
+    async def get_dlp_sensor(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP sensor name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_sensor(device_id, name, vdom)
+
+    @mcp.tool(description="Create a DLP sensor")
+    async def create_dlp_sensor(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="DLP sensor configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_sensor(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP sensor by name")
+    async def update_dlp_sensor(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP sensor name")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_sensor(device_id, name, data, vdom)
+
+    @mcp.tool(description="Delete a DLP sensor by name")
+    async def delete_dlp_sensor(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP sensor name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_sensor(device_id, name, vdom)
+
+    # --- profile ---
     @mcp.tool(description="List all DLP profiles")
     async def list_dlp_profiles(
         device_id: Annotated[str, Field(description="FortiGate device identifier")],
@@ -913,12 +1235,54 @@ any security profile — without it profiles are silently ignored.""")
     ):
         return await t.security.list_dlp_profiles(device_id, vdom)
 
-    @mcp.tool(description="Get DLP settings")
+    @mcp.tool(description="Get a DLP profile by name")
+    async def get_dlp_profile(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP profile name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.get_dlp_profile(device_id, name, vdom)
+
+    @mcp.tool(description="Create a DLP profile")
+    async def create_dlp_profile(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="DLP profile configuration")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.create_dlp_profile(device_id, data, vdom)
+
+    @mcp.tool(description="Update a DLP profile by name")
+    async def update_dlp_profile(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP profile name")],
+        data: Annotated[dict[str, Any], Field(description="Fields to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_profile(device_id, name, data, vdom)
+
+    @mcp.tool(description="Delete a DLP profile by name")
+    async def delete_dlp_profile(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        name: Annotated[str, Field(description="DLP profile name")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.delete_dlp_profile(device_id, name, vdom)
+
+    # --- settings ---
+    @mcp.tool(description="Get global DLP settings")
     async def get_dlp_settings(
         device_id: Annotated[str, Field(description="FortiGate device identifier")],
         vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
     ):
         return await t.security.get_dlp_settings(device_id, vdom)
+
+    @mcp.tool(description="Update global DLP settings")
+    async def update_dlp_settings(
+        device_id: Annotated[str, Field(description="FortiGate device identifier")],
+        data: Annotated[dict[str, Any], Field(description="DLP settings to update")],
+        vdom: Annotated[str | None, Field(description="Virtual Domain", default=None)] = None
+    ):
+        return await t.security.update_dlp_settings(device_id, data, vdom)
 
     # ============================================================
     # Email Filter tools

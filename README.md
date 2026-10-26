@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 8.0.0 / 8.0.1 / 8.0.2 REST API 管理服务器 — 286 MCP 工具 · 1650 API 端点 -->
+<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 8.0.0 / 8.0.1 / 8.0.2 REST API 管理服务器 — 330 MCP 工具 · 1650 API 端点 -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -15,7 +15,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white"/>
-  <img src="https://img.shields.io/badge/MCP%E5%B7%A5%E5%85%B7-286+-orange?style=flat-square"/>
+  <img src="https://img.shields.io/badge/MCP%E5%B7%A5%E5%85%B7-330+-orange?style=flat-square"/>
   <img src="https://img.shields.io/badge/%E7%AB%AF%E7%82%B9-1650+-purple?style=flat-square"/>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"/>
 </p>
@@ -26,7 +26,7 @@
 
 将 FortiGate REST API 封装为 MCP 工具，接入 Claude、ChatGPT、Hermes、Codex、Cursor 等 MCP 客户端，用自然语言完成设备查询、故障排查和配置管理。
 
-- **286 个 MCP 工具**，覆盖 **1650 个 FortiOS REST 端点**（CMDB / Monitor / Log / Service）
+- **330 个 MCP 工具**，覆盖 **1650 个 FortiOS REST 端点**（CMDB / Monitor / Log / Service）
 - 多 FortiGate / 多 VDOM，全异步并发
 - STDIO / Streamable HTTP / SSE，HTTP / HTTPS
 - FortiGate API Token 认证 + MCP Server Bearer Token 认证
@@ -83,7 +83,7 @@ pip install -e .
     "https_port": 8814,
     "http_port": 8815,
     "name": "fortigate-mcp-server",
-    "version": "2.2.0"
+    "version": "2.3.0"
   },
   "fortigate": {
     "devices": {

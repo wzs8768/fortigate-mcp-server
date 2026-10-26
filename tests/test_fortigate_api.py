@@ -259,3 +259,25 @@ class TestFortiGateAPIAsync:
         with patch.object(self.api, '_make_request', new_callable=AsyncMock, return_value={"status": "success"}) as mock:
             await self.api.delete_virtual_ip("test_vip")
             mock.assert_called_once_with("DELETE", "cmdb/firewall/vip/test_vip", vdom=None)
+
+
+class TestDLPPaths:
+    """Generic DLP CRUD must stay inside the DLP namespace."""
+
+    @pytest.fixture
+    def api(self):
+        return FortiGateAPI(
+            "test_device",
+            FortiGateDeviceConfig(host="192.168.1.1", api_token="token"),
+        )
+
+    def test_every_dlp_object_builds_its_table_path(self, api):
+        for object_type in sorted(FortiGateAPI.DLP_OBJECT_TYPES):
+            assert api._dlp_path(object_type) == f"cmdb/dlp/{object_type}"
+
+    def test_entry_key_is_url_encoded(self, api):
+        assert api._dlp_path("label", "a/b c") == "cmdb/dlp/label/a%2Fb%20c"
+
+    def test_unknown_object_type_is_rejected(self, api):
+        with pytest.raises(ValueError, match="Unknown DLP object type"):
+            api._dlp_path("firewall")

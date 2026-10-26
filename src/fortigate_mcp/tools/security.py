@@ -451,24 +451,220 @@ class SecurityTools(FortiGateTool):
     # ============================================================
     # DLP tools
     # ============================================================
+    # FortiOS exposes nine DLP config objects with identical CRUD semantics;
+    # ``settings`` is a singleton. These helpers keep each public tool method
+    # to a couple of lines while the MCP surface stays object-specific.
+    async def _dlp_list(self, device_id: str, object_type: str, plural: str,
+                        vdom: str | None = None,
+                        resource_type: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.dlp_list(object_type, vdom=vdom)
+            return self._format_response(
+                data, resource_type or f"dlp_{object_type.replace('-', '_')}"
+            )
+        except Exception as e:
+            return self._handle_error(f"list DLP {plural}", device_id, e)
+
+    async def _dlp_get(self, device_id: str, object_type: str, key: str, label: str,
+                       vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(name=key)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.dlp_get(object_type, key, vdom=vdom)
+            return self._format_response(
+                data, f"dlp_{object_type.replace('-', '_')}_detail"
+            )
+        except Exception as e:
+            return self._handle_error(f"get DLP {label}", device_id, e)
+
+    async def _dlp_create(self, device_id: str, object_type: str, data: dict[str, Any],
+                          label: str, vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(data=data)
+            api_client = self._get_device_api(device_id)
+            await api_client.dlp_create(object_type, data, vdom=vdom)
+            return self._format_operation_result(
+                f"create DLP {label}", device_id, True, f"DLP {label} created successfully"
+            )
+        except Exception as e:
+            return self._handle_error(f"create DLP {label}", device_id, e)
+
+    async def _dlp_update(self, device_id: str, object_type: str, key: str,
+                          data: dict[str, Any], label: str,
+                          vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(name=key, data=data)
+            api_client = self._get_device_api(device_id)
+            await api_client.dlp_update(object_type, key, data, vdom=vdom)
+            return self._format_operation_result(
+                f"update DLP {label}", device_id, True, f"DLP {label} '{key}' updated successfully"
+            )
+        except Exception as e:
+            return self._handle_error(f"update DLP {label}", device_id, e)
+
+    async def _dlp_delete(self, device_id: str, object_type: str, key: str,
+                          label: str, vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(name=key)
+            api_client = self._get_device_api(device_id)
+            await api_client.dlp_delete(object_type, key, vdom=vdom)
+            return self._format_operation_result(
+                f"delete DLP {label}", device_id, True, f"DLP {label} '{key}' deleted successfully"
+            )
+        except Exception as e:
+            return self._handle_error(f"delete DLP {label}", device_id, e)
+
+    # --- data-type ---
+    async def list_dlp_data_types(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_list(device_id, "data-type", "data types", vdom)
+
+    async def get_dlp_data_type(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "data-type", name, "data type", vdom)
+
+    async def create_dlp_data_type(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "data-type", data, "data type", vdom)
+
+    async def update_dlp_data_type(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "data-type", name, data, "data type", vdom)
+
+    async def delete_dlp_data_type(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "data-type", name, "data type", vdom)
+
+    # --- dictionary ---
+    async def list_dlp_dictionaries(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_list(device_id, "dictionary", "dictionaries", vdom)
+
+    async def get_dlp_dictionary(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "dictionary", name, "dictionary", vdom)
+
+    async def create_dlp_dictionary(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "dictionary", data, "dictionary", vdom)
+
+    async def update_dlp_dictionary(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "dictionary", name, data, "dictionary", vdom)
+
+    async def delete_dlp_dictionary(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "dictionary", name, "dictionary", vdom)
+
+    # --- exact-data-match ---
+    async def list_dlp_exact_data_matches(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_list(device_id, "exact-data-match", "exact data matches", vdom)
+
+    async def get_dlp_exact_data_match(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "exact-data-match", name, "exact data match", vdom)
+
+    async def create_dlp_exact_data_match(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "exact-data-match", data, "exact data match", vdom)
+
+    async def update_dlp_exact_data_match(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "exact-data-match", name, data, "exact data match", vdom)
+
+    async def delete_dlp_exact_data_match(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "exact-data-match", name, "exact data match", vdom)
+
+    # --- filepattern ---
+    async def list_dlp_filepatterns(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_list(device_id, "filepattern", "file patterns", vdom)
+
+    async def get_dlp_filepattern(self, device_id: str, filt_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "filepattern", filt_id, "file pattern", vdom)
+
+    async def create_dlp_filepattern(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "filepattern", data, "file pattern", vdom)
+
+    async def update_dlp_filepattern(self, device_id: str, filt_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "filepattern", filt_id, data, "file pattern", vdom)
+
+    async def delete_dlp_filepattern(self, device_id: str, filt_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "filepattern", filt_id, "file pattern", vdom)
+
+    # --- fp-doc-source ---
+    async def list_dlp_fp_doc_sources(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_list(device_id, "fp-doc-source", "FP document sources", vdom)
+
+    async def get_dlp_fp_doc_source(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "fp-doc-source", name, "FP document source", vdom)
+
+    async def create_dlp_fp_doc_source(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "fp-doc-source", data, "FP document source", vdom)
+
+    async def update_dlp_fp_doc_source(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "fp-doc-source", name, data, "FP document source", vdom)
+
+    async def delete_dlp_fp_doc_source(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "fp-doc-source", name, "FP document source", vdom)
+
+    # --- label ---
+    async def list_dlp_labels(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_list(device_id, "label", "labels", vdom)
+
+    async def get_dlp_label(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "label", name, "label", vdom)
+
+    async def create_dlp_label(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "label", data, "label", vdom)
+
+    async def update_dlp_label(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "label", name, data, "label", vdom)
+
+    async def delete_dlp_label(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "label", name, "label", vdom)
+
+    # --- sensitivity ---
+    async def list_dlp_sensitivities(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_list(device_id, "sensitivity", "sensitivities", vdom)
+
+    async def get_dlp_sensitivity(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "sensitivity", name, "sensitivity", vdom)
+
+    async def create_dlp_sensitivity(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "sensitivity", data, "sensitivity", vdom)
+
+    async def update_dlp_sensitivity(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "sensitivity", name, data, "sensitivity", vdom)
+
+    async def delete_dlp_sensitivity(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "sensitivity", name, "sensitivity", vdom)
+
+    # --- sensor ---
     async def list_dlp_sensors(self, device_id: str, vdom: str | None = None) -> list[Content]:
-        try:
-            self._validate_device_exists(device_id)
-            api_client = self._get_device_api(device_id)
-            data = await api_client.get_dlp_sensors(vdom=vdom)
-            return self._format_response(data, "dlp_sensors")
-        except Exception as e:
-            return self._handle_error("list DLP sensors", device_id, e)
+        return await self._dlp_list(device_id, "sensor", "sensors", vdom, "dlp_sensors")
 
+    async def get_dlp_sensor(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "sensor", name, "sensor", vdom)
+
+    async def create_dlp_sensor(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "sensor", data, "sensor", vdom)
+
+    async def update_dlp_sensor(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "sensor", name, data, "sensor", vdom)
+
+    async def delete_dlp_sensor(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "sensor", name, "sensor", vdom)
+
+    # --- profile ---
     async def list_dlp_profiles(self, device_id: str, vdom: str | None = None) -> list[Content]:
-        try:
-            self._validate_device_exists(device_id)
-            api_client = self._get_device_api(device_id)
-            data = await api_client.get_dlp_profiles(vdom=vdom)
-            return self._format_response(data, "dlp_profiles")
-        except Exception as e:
-            return self._handle_error("list DLP profiles", device_id, e)
+        return await self._dlp_list(device_id, "profile", "profiles", vdom, "dlp_profiles")
 
+    async def get_dlp_profile(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_get(device_id, "profile", name, "profile", vdom)
+
+    async def create_dlp_profile(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_create(device_id, "profile", data, "profile", vdom)
+
+    async def update_dlp_profile(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._dlp_update(device_id, "profile", name, data, "profile", vdom)
+
+    async def delete_dlp_profile(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._dlp_delete(device_id, "profile", name, "profile", vdom)
+
+    # --- settings ---
     async def get_dlp_settings(self, device_id: str, vdom: str | None = None) -> list[Content]:
         try:
             self._validate_device_exists(device_id)
@@ -477,6 +673,18 @@ class SecurityTools(FortiGateTool):
             return self._format_response(data, "dlp_settings")
         except Exception as e:
             return self._handle_error("get DLP settings", device_id, e)
+
+    async def update_dlp_settings(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(data=data)
+            api_client = self._get_device_api(device_id)
+            await api_client.update_dlp_settings(data, vdom=vdom)
+            return self._format_operation_result(
+                "update DLP settings", device_id, True, "DLP settings updated successfully"
+            )
+        except Exception as e:
+            return self._handle_error("update DLP settings", device_id, e)
 
     # ============================================================
     # Email Filter tools

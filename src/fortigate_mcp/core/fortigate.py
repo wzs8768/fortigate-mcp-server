@@ -1534,6 +1534,55 @@ class FortiGateAPI:
         encoded = urllib.parse.quote(filt_id, safe='')
         return await self._make_request("DELETE", f"cmdb/dlp/filepattern/{encoded}", vdom=vdom)
 
+    # Generic DLP object CRUD -----------------------------------
+    # Every DLP object shares the same URL shape: /cmdb/dlp/<object> for the
+    # table and /cmdb/dlp/<object>/<key> for one entry. Building the path in
+    # one place keeps the newer object types (data-type, label, sensitivity,
+    # exact-data-match, ...) consistent and stops an unknown name from
+    # escaping the DLP namespace.
+    DLP_OBJECT_TYPES = frozenset({
+        "data-type",
+        "dictionary",
+        "exact-data-match",
+        "filepattern",
+        "fp-doc-source",
+        "label",
+        "profile",
+        "sensitivity",
+        "sensor",
+    })
+
+    def _dlp_path(self, object_type: str, key: str | None = None) -> str:
+        if object_type not in self.DLP_OBJECT_TYPES:
+            raise ValueError(
+                f"Unknown DLP object type '{object_type}'. "
+                f"Expected one of: {', '.join(sorted(self.DLP_OBJECT_TYPES))}"
+            )
+        path = f"cmdb/dlp/{object_type}"
+        if key is not None:
+            path += "/" + urllib.parse.quote(str(key), safe='')
+        return path
+
+    async def dlp_list(self, object_type: str, vdom: str | None = None) -> dict[str, Any]:
+        """List a DLP object table (data-type, dictionary, label, ...)."""
+        return await self._make_request("GET", self._dlp_path(object_type), vdom=vdom)
+
+    async def dlp_get(self, object_type: str, key: str, vdom: str | None = None) -> dict[str, Any]:
+        """Get one DLP object entry by name/ID."""
+        return await self._make_request("GET", self._dlp_path(object_type, key), vdom=vdom)
+
+    async def dlp_create(self, object_type: str, data: dict[str, Any], vdom: str | None = None) -> dict[str, Any]:
+        """Create a DLP object entry."""
+        return await self._make_request("POST", self._dlp_path(object_type), data=data, vdom=vdom)
+
+    async def dlp_update(self, object_type: str, key: str, data: dict[str, Any], vdom: str | None = None) -> dict[str, Any]:
+        """Update a DLP object entry."""
+        return await self._make_request("PUT", self._dlp_path(object_type, key), data=data, vdom=vdom)
+
+    async def dlp_delete(self, object_type: str, key: str, vdom: str | None = None) -> dict[str, Any]:
+        """Delete a DLP object entry."""
+        return await self._make_request("DELETE", self._dlp_path(object_type, key), vdom=vdom)
+
     # ============================================================
     # Email Filter endpoints
     # ============================================================

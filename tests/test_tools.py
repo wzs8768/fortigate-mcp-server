@@ -9,6 +9,7 @@ from src.fortigate_mcp.tools.device import DeviceTools
 from src.fortigate_mcp.tools.firewall import FirewallTools
 from src.fortigate_mcp.tools.network import NetworkTools
 from src.fortigate_mcp.tools.routing import RoutingTools
+from src.fortigate_mcp.tools.security import SecurityTools
 from src.fortigate_mcp.tools.virtual_ip import VirtualIPTools
 
 
@@ -487,3 +488,92 @@ class TestVirtualIPTools:
         assert vip_data["portforward"] == "enable"
         assert vip_data["extport"] == "443"
         assert vip_data["mappedport"] == "8443"
+
+
+class TestDLPTools:
+    """DLP object tools — every FortiOS DLP object gets full CRUD."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self, fortigate_manager):
+        self.fortigate_manager = fortigate_manager
+        self.tools = SecurityTools(fortigate_manager)
+
+    @pytest.mark.asyncio
+    async def test_list_dlp_labels_uses_dlp_namespace(self, mock_fortigate_api):
+        mock_fortigate_api.dlp_list = AsyncMock(
+            return_value={"results": [{"name": "Confidential"}]}
+        )
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.list_dlp_labels("test_device")
+
+        mock_fortigate_api.dlp_list.assert_awaited_once_with("label", vdom=None)
+        assert "Confidential" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_get_dlp_sensitivity_by_name(self, mock_fortigate_api):
+        mock_fortigate_api.dlp_get = AsyncMock(return_value={"results": {"name": "High"}})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.get_dlp_sensitivity("test_device", "High")
+
+        mock_fortigate_api.dlp_get.assert_awaited_once_with("sensitivity", "High", vdom=None)
+        assert "High" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_create_dlp_exact_data_match(self, mock_fortigate_api):
+        mock_fortigate_api.dlp_create = AsyncMock(return_value={"status": "success"})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.create_dlp_exact_data_match(
+            "test_device", {"name": "edm1", "type": "csv"}
+        )
+
+        mock_fortigate_api.dlp_create.assert_awaited_once_with(
+            "exact-data-match", {"name": "edm1", "type": "csv"}, vdom=None
+        )
+        assert "created" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_update_dlp_dictionary(self, mock_fortigate_api):
+        mock_fortigate_api.dlp_update = AsyncMock(return_value={"status": "success"})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.update_dlp_dictionary(
+            "test_device", "dict1", {"entries": []}
+        )
+
+        mock_fortigate_api.dlp_update.assert_awaited_once_with(
+            "dictionary", "dict1", {"entries": []}, vdom=None
+        )
+        assert "updated" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_delete_dlp_filepattern_uses_id(self, mock_fortigate_api):
+        mock_fortigate_api.dlp_delete = AsyncMock(return_value={"status": "success"})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.delete_dlp_filepattern("test_device", "42")
+
+        mock_fortigate_api.dlp_delete.assert_awaited_once_with(
+            "filepattern", "42", vdom=None
+        )
+        assert "deleted" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_update_dlp_settings(self, mock_fortigate_api):
+        mock_fortigate_api.update_dlp_settings = AsyncMock(return_value={"status": "success"})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.update_dlp_settings("test_device", {"cache": "none"})
+
+        mock_fortigate_api.update_dlp_settings.assert_awaited_once_with(
+            {"cache": "none"}, vdom=None
+        )
+        assert "updated" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_dlp_tool_requires_existing_device(self):
+        result = await self.tools.list_dlp_data_types("missing")
+
+        assert "not found" in result[0].text.lower()
