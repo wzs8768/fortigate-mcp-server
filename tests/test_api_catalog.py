@@ -424,4 +424,4 @@ class TestVersionDeclarations:
         """Importing the package must not require the data files to be parsed."""
         import src.fortigate_mcp
 
-        assert src.fortigate_mcp.__version__ == "2.3.0"
+        assert src.fortigate_mcp.__version__ == "2.4.0"

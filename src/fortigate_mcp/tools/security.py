@@ -687,6 +687,213 @@ class SecurityTools(FortiGateTool):
             return self._handle_error("update DLP settings", device_id, e)
 
     # ============================================================
+    # Additional security objects (curated, not full CMDB coverage)
+    # ============================================================
+    # These are the security objects FortiOS exposes without a dedicated
+    # tool today. File filter, ICAP, ZTNA and VPN certificates get complete
+    # CRUD; the two proxy settings endpoints get get/update. Modules that are
+    # already reachable through cmdb_* and rarely configured (wanopt,
+    # wireless-controller, switch-controller, log destinations) are left out
+    # on purpose so the MCP surface does not balloon.
+    async def _object_list(self, device_id: str, path: str, plural: str,
+                           vdom: str | None = None,
+                           resource_type: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.cmdb_request("GET", path, vdom=vdom)
+            return self._format_response(data, resource_type or plural)
+        except Exception as e:
+            return self._handle_error(f"list {plural}", device_id, e)
+
+    async def _object_get(self, device_id: str, path: str, key: str, label: str,
+                          vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(name=key)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.cmdb_request("GET", path, name=key, vdom=vdom)
+            return self._format_response(data, f"{label}_detail")
+        except Exception as e:
+            return self._handle_error(f"get {label}", device_id, e)
+
+    async def _object_create(self, device_id: str, path: str, data: dict[str, Any],
+                             label: str, vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(data=data)
+            api_client = self._get_device_api(device_id)
+            await api_client.cmdb_request("POST", path, data=data, vdom=vdom)
+            return self._format_operation_result(
+                f"create {label}", device_id, True, f"{label} created successfully"
+            )
+        except Exception as e:
+            return self._handle_error(f"create {label}", device_id, e)
+
+    async def _object_update(self, device_id: str, path: str, key: str,
+                             data: dict[str, Any], label: str,
+                             vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(name=key, data=data)
+            api_client = self._get_device_api(device_id)
+            await api_client.cmdb_request("PUT", path, name=key, data=data, vdom=vdom)
+            return self._format_operation_result(
+                f"update {label}", device_id, True, f"{label} '{key}' updated successfully"
+            )
+        except Exception as e:
+            return self._handle_error(f"update {label}", device_id, e)
+
+    async def _object_delete(self, device_id: str, path: str, key: str, label: str,
+                             vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(name=key)
+            api_client = self._get_device_api(device_id)
+            await api_client.cmdb_request("DELETE", path, name=key, vdom=vdom)
+            return self._format_operation_result(
+                f"delete {label}", device_id, True, f"{label} '{key}' deleted successfully"
+            )
+        except Exception as e:
+            return self._handle_error(f"delete {label}", device_id, e)
+
+    async def _object_get_setting(self, device_id: str, path: str, label: str,
+                                  vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            api_client = self._get_device_api(device_id)
+            data = await api_client.cmdb_request("GET", path, vdom=vdom)
+            return self._format_response(data, f"{label}_settings")
+        except Exception as e:
+            return self._handle_error(f"get {label} settings", device_id, e)
+
+    async def _object_update_setting(self, device_id: str, path: str,
+                                     data: dict[str, Any], label: str,
+                                     vdom: str | None = None) -> list[Content]:
+        try:
+            self._validate_device_exists(device_id)
+            self._validate_required_params(data=data)
+            api_client = self._get_device_api(device_id)
+            await api_client.cmdb_request("PUT", path, data=data, vdom=vdom)
+            return self._format_operation_result(
+                f"update {label} settings", device_id, True, f"{label} settings updated successfully"
+            )
+        except Exception as e:
+            return self._handle_error(f"update {label} settings", device_id, e)
+
+    # --- file-filter profile ---
+    async def list_file_filter_profiles(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_list(device_id, "file-filter/profile", "file filter profiles", vdom)
+
+    async def get_file_filter_profile(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get(device_id, "file-filter/profile", name, "file filter profile", vdom)
+
+    async def create_file_filter_profile(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_create(device_id, "file-filter/profile", data, "file filter profile", vdom)
+
+    async def update_file_filter_profile(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_update(device_id, "file-filter/profile", name, data, "file filter profile", vdom)
+
+    async def delete_file_filter_profile(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_delete(device_id, "file-filter/profile", name, "file filter profile", vdom)
+
+    # --- ICAP local server ---
+    async def list_icap_local_servers(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_list(device_id, "icap/local-server", "ICAP local servers", vdom)
+
+    async def get_icap_local_server(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get(device_id, "icap/local-server", name, "ICAP local server", vdom)
+
+    async def create_icap_local_server(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_create(device_id, "icap/local-server", data, "ICAP local server", vdom)
+
+    async def update_icap_local_server(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_update(device_id, "icap/local-server", name, data, "ICAP local server", vdom)
+
+    async def delete_icap_local_server(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_delete(device_id, "icap/local-server", name, "ICAP local server", vdom)
+
+    # --- ICAP profile ---
+    async def list_icap_profiles(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_list(device_id, "icap/profile", "ICAP profiles", vdom)
+
+    async def get_icap_profile(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get(device_id, "icap/profile", name, "ICAP profile", vdom)
+
+    async def create_icap_profile(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_create(device_id, "icap/profile", data, "ICAP profile", vdom)
+
+    async def update_icap_profile(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_update(device_id, "icap/profile", name, data, "ICAP profile", vdom)
+
+    async def delete_icap_profile(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_delete(device_id, "icap/profile", name, "ICAP profile", vdom)
+
+    # --- ZTNA destination ---
+    async def list_ztna_destinations(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_list(device_id, "ztna/destination", "ZTNA destinations", vdom)
+
+    async def get_ztna_destination(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get(device_id, "ztna/destination", name, "ZTNA destination", vdom)
+
+    async def create_ztna_destination(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_create(device_id, "ztna/destination", data, "ZTNA destination", vdom)
+
+    async def update_ztna_destination(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_update(device_id, "ztna/destination", name, data, "ZTNA destination", vdom)
+
+    async def delete_ztna_destination(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_delete(device_id, "ztna/destination", name, "ZTNA destination", vdom)
+
+    # --- ZTNA web portal ---
+    async def list_ztna_web_portals(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_list(device_id, "ztna/web-portal", "ZTNA web portals", vdom)
+
+    async def get_ztna_web_portal(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get(device_id, "ztna/web-portal", name, "ZTNA web portal", vdom)
+
+    async def create_ztna_web_portal(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_create(device_id, "ztna/web-portal", data, "ZTNA web portal", vdom)
+
+    async def update_ztna_web_portal(self, device_id: str, name: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_update(device_id, "ztna/web-portal", name, data, "ZTNA web portal", vdom)
+
+    async def delete_ztna_web_portal(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_delete(device_id, "ztna/web-portal", name, "ZTNA web portal", vdom)
+
+    # --- VPN certificates (local / CA: list, get, create only) ---
+    async def list_vpn_local_certificates(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_list(device_id, "vpn.certificate/local", "VPN local certificates", vdom)
+
+    async def get_vpn_local_certificate(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get(device_id, "vpn.certificate/local", name, "VPN local certificate", vdom)
+
+    async def create_vpn_local_certificate(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_create(device_id, "vpn.certificate/local", data, "VPN local certificate", vdom)
+
+    async def list_vpn_ca_certificates(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_list(device_id, "vpn.certificate/ca", "VPN CA certificates", vdom)
+
+    async def get_vpn_ca_certificate(self, device_id: str, name: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get(device_id, "vpn.certificate/ca", name, "VPN CA certificate", vdom)
+
+    async def create_vpn_ca_certificate(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_create(device_id, "vpn.certificate/ca", data, "VPN CA certificate", vdom)
+
+    # --- SSH / SSL proxy settings ---
+    async def get_firewall_ssh_setting(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get_setting(device_id, "firewall.ssh/setting", "SSH proxy", vdom)
+
+    async def update_firewall_ssh_setting(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_update_setting(device_id, "firewall.ssh/setting", data, "SSH proxy", vdom)
+
+    async def get_firewall_ssl_setting(self, device_id: str, vdom: str | None = None) -> list[Content]:
+        return await self._object_get_setting(device_id, "firewall.ssl/setting", "SSL proxy", vdom)
+
+    async def update_firewall_ssl_setting(self, device_id: str, data: dict[str, Any], vdom: str | None = None) -> list[Content]:
+        return await self._object_update_setting(device_id, "firewall.ssl/setting", data, "SSL proxy", vdom)
+
+    # ============================================================
     # Email Filter tools
     # ============================================================
     async def list_emailfilter_profiles(self, device_id: str, vdom: str | None = None) -> list[Content]:

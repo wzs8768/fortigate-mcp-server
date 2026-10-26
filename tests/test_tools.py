@@ -577,3 +577,101 @@ class TestDLPTools:
         result = await self.tools.list_dlp_data_types("missing")
 
         assert "not found" in result[0].text.lower()
+
+
+class TestAdditionalSecurityObjects:
+    """Curated security objects that previously only had cmdb_* access."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self, fortigate_manager):
+        self.fortigate_manager = fortigate_manager
+        self.tools = SecurityTools(fortigate_manager)
+
+    @pytest.mark.asyncio
+    async def test_list_file_filter_profiles(self, mock_fortigate_api):
+        mock_fortigate_api.cmdb_request = AsyncMock(
+            return_value={"results": [{"name": "block-exe"}]}
+        )
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.list_file_filter_profiles("test_device")
+
+        mock_fortigate_api.cmdb_request.assert_awaited_once_with(
+            "GET", "file-filter/profile", vdom=None
+        )
+        assert "block-exe" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_update_icap_profile_sends_name_and_body(self, mock_fortigate_api):
+        mock_fortigate_api.cmdb_request = AsyncMock(return_value={"status": "success"})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.update_icap_profile(
+            "test_device", "icap1", {"response": "block"}
+        )
+
+        mock_fortigate_api.cmdb_request.assert_awaited_once_with(
+            "PUT", "icap/profile", name="icap1", data={"response": "block"}, vdom=None
+        )
+        assert "updated" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_create_ztna_destination(self, mock_fortigate_api):
+        mock_fortigate_api.cmdb_request = AsyncMock(return_value={"status": "success"})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.create_ztna_destination(
+            "test_device", {"name": "app1", "type": "FQDN"}
+        )
+
+        mock_fortigate_api.cmdb_request.assert_awaited_once_with(
+            "POST", "ztna/destination", data={"name": "app1", "type": "FQDN"}, vdom=None
+        )
+        assert "created" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_delete_ztna_web_portal(self, mock_fortigate_api):
+        mock_fortigate_api.cmdb_request = AsyncMock(return_value={"status": "success"})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.delete_ztna_web_portal("test_device", "portal1")
+
+        mock_fortigate_api.cmdb_request.assert_awaited_once_with(
+            "DELETE", "ztna/web-portal", name="portal1", vdom=None
+        )
+        assert "deleted" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_get_vpn_local_certificate(self, mock_fortigate_api):
+        mock_fortigate_api.cmdb_request = AsyncMock(
+            return_value={"results": {"name": "vpn-cert"}}
+        )
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.get_vpn_local_certificate("test_device", "vpn-cert")
+
+        mock_fortigate_api.cmdb_request.assert_awaited_once_with(
+            "GET", "vpn.certificate/local", name="vpn-cert", vdom=None
+        )
+        assert "vpn-cert" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_update_ssl_proxy_setting(self, mock_fortigate_api):
+        mock_fortigate_api.cmdb_request = AsyncMock(return_value={"status": "success"})
+        self.fortigate_manager.devices["test_device"] = mock_fortigate_api
+
+        result = await self.tools.update_firewall_ssl_setting(
+            "test_device", {"ssl-insert-empty-fragment": "enable"}
+        )
+
+        mock_fortigate_api.cmdb_request.assert_awaited_once_with(
+            "PUT", "firewall.ssl/setting",
+            data={"ssl-insert-empty-fragment": "enable"}, vdom=None
+        )
+        assert "updated" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_requires_existing_device(self):
+        result = await self.tools.list_icap_profiles("missing")
+
+        assert "not found" in result[0].text.lower()

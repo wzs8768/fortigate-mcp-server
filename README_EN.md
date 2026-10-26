@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 8.0.0 / 8.0.1 / 8.0.2 REST API Management Server — 330 MCP Tools · 1650 API Endpoints -->
+<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 8.0.0 / 8.0.1 / 8.0.2 REST API Management Server — 365 MCP Tools · 1650 API Endpoints -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -15,7 +15,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white"/>
-  <img src="https://img.shields.io/badge/MCP_Tools-330+-orange?style=flat-square"/>
+  <img src="https://img.shields.io/badge/MCP_Tools-365+-orange?style=flat-square"/>
   <img src="https://img.shields.io/badge/Endpoints-1650+-purple?style=flat-square"/>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"/>
 </p>
@@ -26,7 +26,7 @@
 
 Wraps the FortiGate REST API as MCP tools, so Claude, ChatGPT, Hermes, Codex, Cursor and other MCP clients can query, troubleshoot and configure FortiGate in natural language.
 
-- **330 MCP tools** covering **1650 FortiOS REST endpoints** (CMDB / Monitor / Log / Service)
+- **365 MCP tools** covering **1650 FortiOS REST endpoints** (CMDB / Monitor / Log / Service)
 - Multiple FortiGates / VDOMs, fully asynchronous
 - STDIO / Streamable HTTP / SSE, HTTP / HTTPS
 - FortiGate API Token authentication + MCP Server Bearer Token authentication
@@ -84,7 +84,7 @@ Create `config/config.json`:
     "https_port": 8814,
     "http_port": 8815,
     "name": "fortigate-mcp-server",
-    "version": "2.3.0"
+    "version": "2.4.0"
   },
   "fortigate": {
     "devices": {
