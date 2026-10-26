@@ -4,7 +4,10 @@ The server ships a catalog generated from Fortinet's published Swagger 2.0
 bundles (see ``scripts/build_fortios_api_catalog.py``)::
 
     src/fortigate_mcp/data/fortios_api_catalog.json   endpoint -> versions/methods
-    src/fortigate_mcp/data/fortios_api_fields.json    endpoint#method -> fields
+
+Only endpoint paths, methods and version availability are shipped. Summaries,
+field schemas and parameter descriptions are deliberately not extracted: the
+Swagger bundles are FNDN material and this catalog must not replace them.
 
 Two jobs:
 
@@ -12,9 +15,6 @@ Two jobs:
    e.g. ``system.snmp/sysinfo``) so paths normalise correctly on every release.
 2. Answer "does this endpoint exist on FortiOS X.Y.Z?" so a version mismatch
    produces a clear message instead of FortiOS' opaque ``404``/``500 -651``.
-
-The field index is loaded lazily — it is only needed when an caller asks for an
-endpoint's schema.
 """
 
 from __future__ import annotations
@@ -28,7 +28,6 @@ from typing import Any
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 CATALOG_PATH = os.path.join(DATA_DIR, "fortios_api_catalog.json")
-FIELDS_PATH = os.path.join(DATA_DIR, "fortios_api_fields.json")
 
 
 def _version_key(version: str) -> tuple[int, ...]:
@@ -38,12 +37,6 @@ def _version_key(version: str) -> tuple[int, ...]:
 @lru_cache(maxsize=1)
 def _catalog() -> dict[str, Any]:
     with open(CATALOG_PATH, encoding="utf-8") as fh:
-        return json.load(fh)
-
-
-@lru_cache(maxsize=1)
-def _fields() -> dict[str, Any]:
-    with open(FIELDS_PATH, encoding="utf-8") as fh:
         return json.load(fh)
 
 
@@ -222,7 +215,6 @@ def check_endpoint(path: str, version: str | None = None,
         "endpoint": canonical,
         "kind": entry["kind"],
         "module": entry["module"],
-        "summary": entry["summary"],
         "methods": entry["methods"],
         "known_versions": known,
         "introduced_in": known[0] if known else None,
@@ -253,69 +245,8 @@ def check_endpoint(path: str, version: str | None = None,
     return result
 
 
-def endpoint_schema(path: str, method: str = "get") -> dict[str, Any]:
-    """Field definitions and query parameters for one operation.
-
-    Schemas come from the newest release that documents the operation, so an
-    endpoint dropped from a newer Swagger bundle still reports its schema.
-
-    ``fields_source`` says where the field list came from: ``body`` is the
-    request payload schema FortiOS itself publishes, ``response`` is the object
-    representation (which uses the same field names for writes).
-    """
-    try:
-        canonical = canonical_endpoint(path)
-    except ValueError:
-        return {"endpoint": path, "error": "endpoint path must not be empty"}
-
-    verb = method.lower()
-    key = f"{canonical}#{verb}"
-    slot = _fields().get(key)
-    if slot is None:
-        response: dict[str, Any] = {
-            "endpoint": canonical,
-            "method": verb,
-            "error": "no documented schema for this endpoint/method",
-            "documented_methods": endpoint_methods(canonical),
-        }
-        similar = suggest_endpoints(path)
-        if similar:
-            response["similar_endpoints"] = similar
-        return response
-
-    wants_body = verb in ("post", "put")
-    body = slot.get("write")
-    read = slot.get("read")
-    if wants_body and body:
-        fields, fields_source = body, "body"
-    elif not wants_body and read:
-        fields, fields_source = read, "response"
-    elif body:
-        fields, fields_source = body, "body"
-    elif read:
-        fields, fields_source = read, "response"
-    else:
-        fields, fields_source = {}, "none"
-
-    result: dict[str, Any] = {
-        "endpoint": canonical,
-        "method": verb,
-        "available_in": endpoint_versions(canonical, verb),
-        "query_params": slot.get("params", []),
-        "fields": fields,
-        "fields_source": fields_source,
-        "field_count": len(fields),
-    }
-    if wants_body and fields_source == "response" and read:
-        result["fields_source_note"] = (
-            "Fortinet publishes no separate body schema for this operation; the "
-            "object representation below uses the same field names FortiOS accepts."
-        )
-    return result
-
-
 def endpoints_map() -> dict[str, Any]:
-    """The raw ``endpoint -> {kind, module, summary, methods}`` mapping."""
+    """The raw ``endpoint -> {kind, module, methods}`` mapping."""
     return _catalog()["endpoints"]
 
 
@@ -330,7 +261,7 @@ def endpoints(kind: str | None = None, module: str | None = None,
             modules such as ``firewall.service``).
         version: only endpoints that exist in this FortiOS release.
         method: only endpoints accepting this HTTP method.
-        search: case-insensitive substring match on the path or summary.
+        search: case-insensitive substring match on the path.
         include_singletons: set False to hide ``{key}`` variants.
     """
     out = []
@@ -351,13 +282,12 @@ def endpoints(kind: str | None = None, module: str | None = None,
             for_this_version = [m for m in methods if not wanted_method or m == wanted_method]
             if not any(version in methods[m] for m in for_this_version):
                 continue
-        if needle and needle not in path.lower() and needle not in (entry["summary"] or "").lower():
+        if needle and needle not in path.lower():
             continue
         out.append({
             "endpoint": path,
             "kind": entry["kind"],
             "module": entry["module"],
-            "summary": entry["summary"],
             "methods": sorted(methods),
             "versions": sorted({v for vs in methods.values() for v in vs}, key=_version_key),
         })

@@ -1,6 +1,6 @@
 """Shared tool registration for FortiGate MCP — used by both STDIO and HTTP servers.
 
-Import this module and call ``register_all_tools(mcp, t)`` to register all 365 MCP tools.
+Import this module and call ``register_all_tools(mcp, t)`` to register all 364 MCP tools.
 The ``t`` parameter is a namespace with tool service attributes:
     t.device, t.firewall, t.network, t.routing, t.virtual_ip,
     t.schedule, t.security, t.resource, t.cmdb, t.catalog
@@ -68,7 +68,7 @@ class _ToolNamespace:
 
 
 def register_all_tools(mcp, t: _ToolNamespace) -> None:
-    """Register all 365 MCP tools on the given FastMCP instance.
+    """Register all 364 MCP tools on the given FastMCP instance.
 
     Args:
         mcp: FastMCP server instance
@@ -2743,15 +2743,6 @@ Answers "which endpoint does X, and does my build have it?" — e.g. kind='cmdb'
         limit: Annotated[int, Field(description="Max rows to print (default 100, max 500)", default=100)] = 100,
     ):
         return await t.catalog.list_api_endpoints(kind, module, version, method, search, device_id, limit)
-
-    @mcp.tool(description="""Get the documented field names, types, enums and query parameters for one FortiOS endpoint/method.
-
-Call this BEFORE cmdb_create / cmdb_update / monitor_request: FortiOS rejects unknown or malformed fields with opaque -651 / -56 errors, and this returns the exact schema Fortinet publishes.""")
-    async def get_api_endpoint_schema(
-        endpoint: Annotated[str, Field(description="e.g. 'firewall/policy', 'router/vrf', 'monitor/system/status'")],
-        method: Annotated[str, Field(description="get (default) | post | put | delete", default="get")] = "get",
-    ):
-        return await t.catalog.get_api_endpoint_schema(endpoint, method)
 
     @mcp.tool(description="""Check whether an endpoint exists on a FortiOS release (or on a device's detected version).
 

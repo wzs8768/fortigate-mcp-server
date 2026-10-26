@@ -6,26 +6,27 @@ The FortiGate MCP server needs to know, for a given FortiOS release:
 * which REST endpoints exist (``/api/v2/cmdb/...``, ``/api/v2/monitor/...``, ...)
 * which HTTP methods each endpoint accepts
 * which CMDB "composite" modules use a DOT separator (``system.snmp/sysinfo``)
-* which fields each endpoint accepts/returns (so agents don't get opaque
-  FortiOS ``-651`` / ``-56`` errors)
+
+Only that path/method/version index is emitted. Endpoint summaries and field
+schemas are intentionally not extracted: the Swagger bundles are FNDN material
+and the published catalog must not become a substitute for them.
 
 Fortinet publishes one Swagger 2.0 document per module. Point this script at a
-directory tree of those documents and it emits two compact JSON files consumed
+directory tree of those documents and it emits one compact JSON file consumed
 by ``fortigate_mcp.core.api_catalog``:
 
     src/fortigate_mcp/data/fortios_api_catalog.json
-    src/fortigate_mcp/data/fortios_api_fields.json
 
 Usage:
     python scripts/build_fortios_api_catalog.py \
         --docs 7.4.12=/path/to/FortiOSAPI7.4.12 \
-        --docs 8.0.1=/path/to/FortiOSAPI8.0.1
+        --docs 8.0.2=/path/to/FortiOSAPI8.0.2
 
     # or discover every documented version under a parent directory:
     python scripts/build_fortios_api_catalog.py --auto /path/to/FortiGateAPI
 
 Adding support for a future release therefore needs no code change: download
-the Swagger bundle, re-run this script, commit the regenerated data files.
+the Swagger bundle, re-run this script, commit the regenerated data file.
 """
 
 from __future__ import annotations
@@ -38,16 +39,12 @@ import os
 import re
 import sys
 from collections import defaultdict
-from typing import Any
 
 # Sub-directory names Fortinet has used for the Swagger bundles over time.
 CONFIG_DIRS = ("Configuration", "config")
 OTHER_DIRS = ("Monitor", "monitor", "Log", "log", "Service", "service")
 
 METHODS = ("get", "post", "put", "delete")
-# Descriptions are truncated to keep the shipped schema index small; the full
-# text lives in Fortinet's Swagger bundles.
-MAX_DESCRIPTION = 70
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(REPO_ROOT, "src", "fortigate_mcp", "data")
 
@@ -65,17 +62,6 @@ DIRS_BY_KIND = {
     "log": {"log"},
     "service": {"service"},
 }
-
-
-def _params_as_list(op: dict) -> list[dict]:
-    """Fortinet emits ``parameters`` sometimes as a list, sometimes as an
-    object keyed by numeric strings. Normalise to a list of dicts."""
-    raw = op.get("parameters")
-    if isinstance(raw, dict):
-        return [v for v in raw.values() if isinstance(v, dict)]
-    if isinstance(raw, list):
-        return [v for v in raw if isinstance(v, dict)]
-    return []
 
 
 def _version_key(version: str) -> tuple[int, ...]:
@@ -109,10 +95,9 @@ def _load_swagger(path: str) -> dict:
         return json.load(fh)
 
 
-def build(version_dirs: dict[str, str]) -> tuple[dict, dict]:
-    """Parse every Swagger document and return (catalog, field_index)."""
+def build(version_dirs: dict[str, str]) -> dict:
+    """Parse every Swagger document and return the path/method catalog."""
     endpoints: dict[str, dict] = {}
-    details: dict[str, dict] = {}
     versions = sorted(version_dirs, key=_version_key)
     sources: dict[str, dict] = {}
     composite: dict[str, list[str]] = {}
@@ -165,32 +150,13 @@ def build(version_dirs: dict[str, str]) -> tuple[dict, dict]:
                 entry = endpoints.setdefault(full, {
                     "kind": kind,
                     "module": raw_path.strip("/").split("/")[0],
-                    "summary": "",
                     "methods": defaultdict(list),
                 })
-                # Newest version wins for human-readable metadata.
-                summary = ""
+                # Only method/version availability is recorded — no summaries,
+                # descriptions or field schemas.
                 for method in METHODS:
-                    op = item.get(method)
-                    if not isinstance(op, dict):
-                        continue
-                    entry["methods"][method].append(version)
-                    summary = summary or (op.get("summary") or "")
-                if summary and (version == versions[-1] or not entry["summary"]):
-                    entry["summary"] = summary[:MAX_DESCRIPTION].replace("\n", " ").strip()
-
-                for method in METHODS:
-                    op = item.get(method)
-                    if not isinstance(op, dict):
-                        continue
-                    key = f"{full}#{method}"
-                    slot = details.setdefault(key, {})
-                    # Older releases only fill gaps; the newest release that
-                    # defines this operation wins. Version availability itself
-                    # lives in fortios_api_catalog.json, not here.
-                    extracted = _extract_op_schema(op)
-                    if version == versions[-1] or not any(slot.values()):
-                        slot.update(extracted)
+                    if isinstance(item.get(method), dict):
+                        entry["methods"][method].append(version)
 
         sources[version] = {"dir": os.path.basename(root.rstrip("/")),
                             "files": len(docs), "paths": path_count}
@@ -203,7 +169,7 @@ def build(version_dirs: dict[str, str]) -> tuple[dict, dict]:
     union_composite = sorted({m for mods in composite.values() for m in mods})
 
     catalog = {
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_at": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
         "supported_versions": versions,
         "latest_version": versions[-1],
@@ -214,73 +180,12 @@ def build(version_dirs: dict[str, str]) -> tuple[dict, dict]:
             path: {
                 "kind": entry["kind"],
                 "module": entry["module"],
-                "summary": entry["summary"],
                 "methods": {m: sorted(v, key=_version_key) for m, v in sorted(entry["methods"].items())},
             }
             for path, entry in sorted(endpoints.items())
         },
     }
-    return catalog, details
-
-
-def _describe_properties(props: Any) -> dict[str, dict]:
-    """Compress a Swagger ``properties`` map into the shipped field index."""
-    fields: dict[str, dict] = {}
-    if not isinstance(props, dict):
-        return fields
-    for name, spec in props.items():
-        if not isinstance(spec, dict):
-            continue
-        field: dict = {}
-        if spec.get("type"):
-            field["type"] = spec["type"]
-        if spec.get("enum"):
-            field["enum"] = spec["enum"]
-        if spec.get("description"):
-            field["desc"] = " ".join(str(spec["description"]).split())[:MAX_DESCRIPTION]
-        for bound in ("minimum", "maximum", "maxLength", "minLength"):
-            if spec.get(bound) is not None:
-                field[bound] = spec[bound]
-        fields[name] = field
-    return fields
-
-
-def _extract_op_schema(op: dict) -> dict:
-    """Return the schema record for one operation.
-
-    Keys (empty ones omitted, to keep the shipped file small):
-
-    ``read``    fields the endpoint returns (``responses.200.schema``)
-    ``write``   fields the endpoint accepts in the request body
-    ``params``  accepted query parameters
-
-    Path parameters are omitted — they are already visible in the path itself.
-    """
-    responses = op.get("responses") or {}
-    schema = ((responses.get("200") or {}).get("schema")) or {}
-    read = _describe_properties(schema.get("properties") if isinstance(schema, dict) else None)
-
-    write: dict[str, dict] = {}
-    query_params: list[str] = []
-    for param in _params_as_list(op):
-        if param.get("in") == "query" and param.get("name"):
-            query_params.append(param["name"])
-        elif param.get("in") == "body" and isinstance(param.get("schema"), dict):
-            write = _describe_properties(param["schema"].get("properties")) or write
-
-    record: dict = {}
-    if read:
-        record["read"] = read
-    # FortiOS bodies use the same field names as the returned object, so an
-    # identical ``write`` map is pure duplication — drop it and let readers
-    # fall back to ``read``.
-    if write and write != read:
-        record["write"] = write
-    elif write and write == read:
-        record["write_matches_read"] = True
-    if query_params:
-        record["params"] = sorted(set(query_params))
-    return record
+    return catalog
 
 
 def _auto_discover(parent: str) -> dict[str, str]:
@@ -326,24 +231,16 @@ def main() -> int:
     for version in sorted(version_dirs, key=_version_key):
         print(f"  {version:<8} {version_dirs[version]}")
 
-    catalog, details = build(version_dirs)
+    catalog = build(version_dirs)
 
     os.makedirs(args.out, exist_ok=True)
     catalog_path = os.path.join(args.out, "fortios_api_catalog.json")
-    fields_path = os.path.join(args.out, "fortios_api_fields.json")
     with open(catalog_path, "w", encoding="utf-8") as fh:
         json.dump(catalog, fh, ensure_ascii=False, indent=1, sort_keys=False)
-        fh.write("\n")
-    with open(fields_path, "w", encoding="utf-8") as fh:
-        # Compact: this file is machine-read only, and the pretty-printed
-        # variant is several times larger.
-        json.dump(details, fh, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         fh.write("\n")
 
     print(f"\n  endpoints : {len(catalog['endpoints']):>5}  -> {catalog_path} "
           f"({os.path.getsize(catalog_path) / 1024:.0f} KB)")
-    print(f"  schemas   : {len(details):>5}  -> {fields_path} "
-          f"({os.path.getsize(fields_path) / 1024:.0f} KB)")
     for version in catalog["supported_versions"]:
         src = catalog["sources"][version]
         print(f"  {version:<8} {src['files']:>3} files, {src['paths']:>5} paths, "

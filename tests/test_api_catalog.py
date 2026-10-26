@@ -82,9 +82,10 @@ def _matches_catalog(candidate: str, known: set[str]) -> bool:
 class TestCatalogData:
     """The generated data files are present, current, and cover 8.0.1."""
 
-    def test_data_files_exist(self):
+    def test_catalog_file_exists_without_field_index(self):
         assert Path(api_catalog.CATALOG_PATH).is_file()
-        assert Path(api_catalog.FIELDS_PATH).is_file()
+        fields_file = Path(api_catalog.CATALOG_PATH).parent / "fortios_api_fields.json"
+        assert not fields_file.exists(), "field index must not ship with the repo"
 
     def test_supported_versions(self):
         versions = api_catalog.supported_versions()
@@ -286,36 +287,8 @@ class TestVersionCompatibility:
         assert api_catalog.check_endpoint("firewall/policy", "8.0.1", "put")["supported"] is False
 
 
-class TestEndpointSchema:
-    """Field lookups that keep agents away from opaque -651 / -56 errors."""
-
-    def test_get_schema_from_response(self):
-        schema = api_catalog.endpoint_schema("router/vrf", "get")
-        assert schema["fields_source"] == "response"
-        assert "name" in schema["fields"]
-        assert schema["fields"]["name"]["type"] == "string"
-
-    def test_post_schema_from_body(self):
-        schema = api_catalog.endpoint_schema("router/vrf", "post")
-        assert schema["fields_source"] == "body"
-        assert set(schema["fields"]) == {"id", "name"}
-
-    def test_query_params_included(self):
-        schema = api_catalog.endpoint_schema("router/vrf", "get")
-        assert "filter" in schema["query_params"]
-
-    def test_field_metadata_carries_enums(self):
-        schema = api_catalog.endpoint_schema("firewall/policy", "get")
-        assert schema["fields"]["action"]["enum"] == ["accept", "deny", "ipsec"]
-
-    def test_unknown_method_reports_documented_ones(self):
-        schema = api_catalog.endpoint_schema("firewall/policy", "delete")
-        assert "error" in schema
-        assert "get" in schema["documented_methods"]
-
-
 class TestCatalogTools:
-    """The three MCP tools, against a mocked 8.0.1 device."""
+    """The two catalog MCP tools, against a mocked 8.0.1 device."""
 
     @pytest.fixture
     def tools(self):
@@ -358,17 +331,6 @@ class TestCatalogTools:
     async def test_list_unknown_device(self, tools):
         text = (await tools.list_api_endpoints(device_id="NOPE"))[0].text
         assert "NOPE" in text
-
-    @pytest.mark.asyncio
-    async def test_schema(self, tools):
-        text = (await tools.get_api_endpoint_schema("router/vrf", "post"))[0].text
-        assert "id" in text and "name" in text
-        assert "request body schema" in text
-
-    @pytest.mark.asyncio
-    async def test_schema_unknown_endpoint_suggests(self, tools):
-        text = (await tools.get_api_endpoint_schema("system/snmp/communitie"))[0].text
-        assert "did you mean" in text
 
     @pytest.mark.asyncio
     async def test_compat_with_device_version(self, tools):
@@ -445,4 +407,4 @@ class TestVersionDeclarations:
         """Importing the package must not require the data files to be parsed."""
         import src.fortigate_mcp
 
-        assert src.fortigate_mcp.__version__ == "2.5.0"
+        assert src.fortigate_mcp.__version__ == "3.0.0"

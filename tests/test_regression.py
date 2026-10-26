@@ -318,7 +318,7 @@ class TestToolCount:
 
     def test_catalog_tools_registered(self):
         c = (ROOT / "src" / "fortigate_mcp" / "tool_registry.py").read_text()
-        for name in ("list_api_endpoints", "get_api_endpoint_schema", "check_api_compatibility"):
+        for name in ("list_api_endpoints", "check_api_compatibility"):
             assert f"async def {name}(" in c, name
 
     def test_both_servers_use_registry(self):

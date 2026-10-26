@@ -75,7 +75,7 @@ class CatalogTools(FortiGateTool):
             module: first path segment, e.g. "firewall" (matches composites too)
             version: FortiOS release, e.g. "8.0.1" — only endpoints present there
             method: only endpoints accepting this HTTP method
-            search: case-insensitive substring match on path or summary
+            search: case-insensitive substring match on path
             device_id: resolve ``version`` from this device when omitted
             limit: maximum rows to print (default 100, max 500)
         """
@@ -129,11 +129,9 @@ class CatalogTools(FortiGateTool):
             for entry in shown:
                 methods = ",".join(m.upper() for m in entry["methods"])
                 versions = ",".join(entry["versions"])
-                summary = entry["summary"] or ""
                 lines.append(
                     f"  {entry['endpoint']}\n"
                     f"      {methods}  ·  {versions}"
-                    + (f"\n      {summary}" if summary else "")
                 )
             if len(matches) > len(shown):
                 lines.append("")
@@ -166,26 +164,6 @@ class CatalogTools(FortiGateTool):
         lines.append("")
         lines.append("  Try a broader search, e.g. module='firewall', or search='vpn'.")
         return "\n".join(lines)
-
-    async def get_api_endpoint_schema(self, endpoint: str, method: str = "get") -> list[Content]:
-        """Return the field definitions and query parameters for one operation.
-
-        Use this before cmdb_create / cmdb_update / monitor_request to learn the
-        exact field names FortiOS expects (prevents -651/-56 rejections).
-
-        Args:
-            endpoint: e.g. "firewall/policy", "router/vrf", "monitor/system/status"
-            method: get (default), post, put or delete
-        """
-        try:
-            data = api_catalog.endpoint_schema(endpoint, method)
-            availability = api_catalog.check_endpoint(endpoint, method=method)
-            data["versions"] = availability.get("known_versions", [])
-            data["kind"] = availability.get("kind")
-            data["summary"] = availability.get("summary")
-            return [Content(type="text", text=_render_schema(data))]
-        except Exception as e:
-            return self._handle_error(f"get_api_endpoint_schema {endpoint}", "catalog", e)
 
     async def check_api_compatibility(
         self,
@@ -236,8 +214,6 @@ def _render_verdict(verdict: dict[str, Any]) -> str:
     ]
     if verdict.get("module"):
         lines.append(f"  module   : {verdict['kind']}/{verdict['module']}")
-    if verdict.get("summary"):
-        lines.append(f"  purpose  : {verdict['summary']}")
     if verdict.get("known_versions"):
         lines.append(f"  available in: {', '.join(verdict['known_versions'])}")
     if verdict.get("methods"):
@@ -248,49 +224,4 @@ def _render_verdict(verdict: dict[str, Any]) -> str:
         )
     if verdict.get("similar_endpoints"):
         lines.append(f"  did you mean: {', '.join(verdict['similar_endpoints'])}")
-    return "\n".join(lines)
-
-
-def _render_schema(data: dict[str, Any]) -> str:
-    if data.get("error"):
-        lines = [f"❌ {data['error']}", "", f"  endpoint : {data.get('endpoint', '?')}"]
-        if data.get("documented_methods"):
-            lines.append(f"  methods  : {', '.join(m.upper() for m in data['documented_methods'])}")
-        if data.get("similar_endpoints"):
-            lines.append(f"  did you mean: {', '.join(data['similar_endpoints'])}")
-        return "\n".join(lines)
-
-    lines = [f"📄 **{data['endpoint']}**  [{data['method'].upper()}]"]
-    if data.get("summary"):
-        lines.append(f"  {data['summary']}")
-    if data.get("kind"):
-        lines.append(f"  kind     : {data['kind']}")
-    if data.get("versions"):
-        lines.append(f"  available in: {', '.join(data['versions'])}")
-    if data.get("query_params"):
-        lines.append(f"  query params: {', '.join(data['query_params'])}")
-    lines.append("")
-
-    fields = data.get("fields") or {}
-    if not fields:
-        lines.append("  (no fields documented for this operation)")
-        return "\n".join(lines)
-
-    source = {
-        "body": "request body schema published by Fortinet",
-        "response": "returned object representation",
-    }.get(str(data.get("fields_source") or ""), str(data.get("fields_source") or "unknown"))
-    lines.append(f"  {len(fields)} fields — source: {source}")
-    if data.get("fields_source_note"):
-        lines.append(f"  ⚠️  {data['fields_source_note']}")
-    for name in sorted(fields):
-        spec = fields[name]
-        bits = [spec.get("type") or "?"]
-        if spec.get("enum"):
-            bits.append("one of " + "|".join(str(v) for v in spec["enum"]))
-        for bound in ("minimum", "maximum", "minLength", "maxLength"):
-            if spec.get(bound) is not None:
-                bits.append(f"{bound}={spec[bound]}")
-        desc = f" — {spec['desc']}" if spec.get("desc") else ""
-        lines.append(f"    • {name} ({', '.join(bits)}){desc}")
     return "\n".join(lines)

@@ -1,4 +1,4 @@
-<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 7.6.8 / 8.0.0 / 8.0.1 / 8.0.2 REST API Management Server — 365 MCP Tools · 1650 API Endpoints -->
+<!-- FortiGate MCP Server — FortiOS 7.4.12 / 7.6.7 / 7.6.8 / 8.0.0 / 8.0.1 / 8.0.2 REST API Management Server — 364 MCP Tools · 1650 API Endpoints -->
 <p align="center">
   <img src="https://img.shields.io/badge/FortiGate-MCP%20Server-blue?style=for-the-badge&logo=fortinet&logoColor=white" alt="FortiGate MCP Server"/>
 </p>
@@ -15,7 +15,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white"/>
-  <img src="https://img.shields.io/badge/MCP_Tools-365+-orange?style=flat-square"/>
+  <img src="https://img.shields.io/badge/MCP_Tools-364+-orange?style=flat-square"/>
   <img src="https://img.shields.io/badge/Endpoints-1650+-purple?style=flat-square"/>
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"/>
 </p>
@@ -26,7 +26,7 @@
 
 Wraps the FortiGate REST API as MCP tools, so Claude, ChatGPT, Hermes, Codex, Cursor and other MCP clients can query, troubleshoot and configure FortiGate in natural language.
 
-- **365 MCP tools** covering **1650 FortiOS REST endpoints** (CMDB / Monitor / Log / Service)
+- **364 MCP tools** covering **1650 FortiOS REST endpoints** (CMDB / Monitor / Log / Service)
 - Multiple FortiGates / VDOMs, fully asynchronous
 - STDIO / Streamable HTTP / SSE, HTTP / HTTPS
 - FortiGate API Token authentication + MCP Server Bearer Token authentication
@@ -35,8 +35,8 @@ Validated against **FortiOS 7.4.12 / 7.6.7 / 7.6.8 / 8.0.0 / 8.0.1 / 8.0.2**; ot
 
 The device's FortiOS version is auto-detected on first use — no manual configuration. Calling an endpoint a
 build does not have says so (and names the releases that do) instead of returning FortiOS' bare
-`404` / `500 -651`; `list_api_endpoints` / `get_api_endpoint_schema` / `check_api_compatibility` look up
-endpoints, fields and version availability offline.
+`404` / `500 -651`; `list_api_endpoints` / `check_api_compatibility` look up endpoints and version
+availability offline. Field-level schemas live in the Fortinet FNDN documentation.
 
 ---
 
@@ -84,7 +84,7 @@ Create `config/config.json`:
     "https_port": 8814,
     "http_port": 8815,
     "name": "fortigate-mcp-server",
-    "version": "2.5.0"
+    "version": "3.0.0"
   },
   "fortigate": {
     "devices": {
@@ -286,7 +286,6 @@ cmdb_list  cmdb_get  cmdb_create  cmdb_update  cmdb_delete  monitor_request
 
 # API catalog — offline lookups, no device I/O
 list_api_endpoints        # find endpoints, e.g. module="router", version="8.0.2"
-get_api_endpoint_schema   # check fields before writing, avoiding -651 / -56
 check_api_compatibility   # 404 triage: does this build have the endpoint?
 ```
 
